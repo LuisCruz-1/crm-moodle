@@ -30,6 +30,30 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Dashboard
                                 </NavLink>
+                                <NavLink
+                                    href={route('crm.kanban.index')}
+                                    active={route().current('crm.kanban.index')}
+                                >
+                                    CRM
+                                </NavLink>
+                                <NavLink
+                                    href={route('students.index')}
+                                    active={route().current('students.*')}
+                                >
+                                    Estudiantes
+                                </NavLink>
+                                <NavLink
+                                    href={route('finance.inbox.index')}
+                                    active={route().current('finance.*')}
+                                >
+                                    Finanzas
+                                </NavLink>
+                                <NavLink
+                                    href={route('settings.moodle.index')}
+                                    active={route().current('settings.*')}
+                                >
+                                    Configuración
+                                </NavLink>
                             </div>
                         </div>
 
@@ -133,6 +157,30 @@ export default function AuthenticatedLayout({ header, children }) {
                             active={route().current('dashboard')}
                         >
                             Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('crm.kanban.index')}
+                            active={route().current('crm.kanban.index')}
+                        >
+                            CRM
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('students.index')}
+                            active={route().current('students.*')}
+                        >
+                            Estudiantes
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('finance.inbox.index')}
+                            active={route().current('finance.*')}
+                        >
+                            Finanzas
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('settings.moodle.index')}
+                            active={route().current('settings.*')}
+                        >
+                            Configuración
                         </ResponsiveNavLink>
                     </div>
 
