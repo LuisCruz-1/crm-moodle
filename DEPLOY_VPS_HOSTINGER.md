@@ -34,3 +34,11 @@ Cuando publiques una nueva versión de la imagen (tag `latest`), en Docker Manag
 ```bash
 php artisan migrate --force
 ```
+
+### 5) Si ves `404 page not found` en el dominio
+Ese `404 page not found` normalmente viene de Traefik (no de Laravel) y significa que el router no está matcheando el Host o Traefik no “ve” tu contenedor.
+
+Checklist rápida:
+- Verifica que los DNS A de `crm.micrudev.tech` y `alumnos.micrudev.tech` apunten a la IP del VPS.
+- En el stack, confirma que el contenedor `app` tiene labels `traefik.http.routers.crm-moodle.*`.
+- Revisa logs de Traefik para ver si detecta el router y si reporta errores al enrutar.
