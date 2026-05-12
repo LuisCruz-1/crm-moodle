@@ -1,16 +1,31 @@
 services:
   app:
-    build: .
+    image: ghcr.io/luiscruz-1/crm-moodle:latest
     restart: always
     environment:
+      APP_NAME: "CRM Academico"
       APP_ENV: production
       APP_DEBUG: "false"
+      APP_URL: "https://crm.micrudev.tech"
       DB_CONNECTION: mysql
       DB_HOST: db
       DB_PORT: 3306
+      DB_DATABASE: crm_academico
+      DB_USERNAME: crm_user
+      DB_PASSWORD: "SuperPasswordSecreta123"
       REDIS_HOST: redis
-    env_file:
-      - .env
+      QUEUE_CONNECTION: redis
+      CACHE_STORE: redis
+      SESSION_DRIVER: redis
+      CRM_HOST: "crm.micrudev.tech"
+      PORTAL_HOST: "alumnos.micrudev.tech"
+      TRAEFIK_ENTRYPOINT: websecure
+      TRAEFIK_CERTRESOLVER: letsencrypt
+      MAIL_MAILER: log
+      MAIL_HOST: "127.0.0.1"
+      MAIL_PORT: "2525"
+      MAIL_FROM_ADDRESS: "hello@example.com"
+      MAIL_FROM_NAME: "CRM Academico"
     volumes:
       - storage_private:/var/www/html/storage/app/private
     depends_on:
@@ -18,21 +33,29 @@ services:
       - redis
     networks:
       - app-network
-      - traefik-public
     labels:
       - traefik.enable=true
-      - "traefik.http.routers.crm.rule=Host(\`${CRM_HOST}\`,\`${PORTAL_HOST}\`)"
+      - "traefik.http.routers.crm.rule=Host(`crm.micrudev.tech`,`alumnos.micrudev.tech`)"
       - traefik.http.routers.crm.tls=true
-      - traefik.http.routers.crm.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}
-      - traefik.http.routers.crm.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}
+      - traefik.http.routers.crm.entrypoints=websecure
+      - traefik.http.routers.crm.tls.certresolver=letsencrypt
       - traefik.http.services.crm.loadbalancer.server.port=80
 
   worker:
-    build: .
+    image: ghcr.io/luiscruz-1/crm-moodle:latest
     restart: always
     command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=90
-    env_file:
-      - .env
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: crm_academico
+      DB_USERNAME: crm_user
+      DB_PASSWORD: "SuperPasswordSecreta123"
+      REDIS_HOST: redis
+      QUEUE_CONNECTION: redis
     depends_on:
       - db
       - redis
@@ -40,11 +63,20 @@ services:
       - app-network
 
   scheduler:
-    build: .
+    image: ghcr.io/luiscruz-1/crm-moodle:latest
     restart: always
     command: php artisan schedule:work
-    env_file:
-      - .env
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: crm_academico
+      DB_USERNAME: crm_user
+      DB_PASSWORD: "SuperPasswordSecreta123"
+      REDIS_HOST: redis
+      QUEUE_CONNECTION: redis
     depends_on:
       - db
       - redis
@@ -55,10 +87,10 @@ services:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: crm_academico
+      MYSQL_USER: crm_user
+      MYSQL_PASSWORD: "SuperPasswordSecreta123"
+      MYSQL_ROOT_PASSWORD: "RootPasswordMuySecreta123"
     volumes:
       - db_data:/var/lib/mysql
     networks:
@@ -73,8 +105,6 @@ services:
 networks:
   app-network:
     driver: bridge
-  traefik-public:
-    external: true
 
 volumes:
   db_data:
