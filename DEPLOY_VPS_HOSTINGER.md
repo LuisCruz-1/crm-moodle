@@ -42,3 +42,7 @@ Checklist rápida:
 - Verifica que los DNS A de `crm.micrudev.tech` y `alumnos.micrudev.tech` apunten a la IP del VPS.
 - En el stack, confirma que el contenedor `app` tiene labels `traefik.http.routers.crm-moodle.*`.
 - Revisa logs de Traefik para ver si detecta el router y si reporta errores al enrutar.
+
+Nota Traefik v3:
+- La regla `Host()` ya no acepta 2 parámetros. La forma correcta es:
+  - `Host(\`crm.micrudev.tech\`) || Host(\`alumnos.micrudev.tech\`)`

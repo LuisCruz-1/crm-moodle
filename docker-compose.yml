@@ -35,7 +35,7 @@ services:
       - app-network
     labels:
       - traefik.enable=true
-      - "traefik.http.routers.crm-moodle.rule=Host(`crm.micrudev.tech`,`alumnos.micrudev.tech`)"
+      - "traefik.http.routers.crm-moodle.rule=Host(`crm.micrudev.tech`) || Host(`alumnos.micrudev.tech`)"
       - "traefik.http.routers.crm-moodle.service=crm-moodle"
       - traefik.http.routers.crm-moodle.tls=true
       - traefik.http.routers.crm-moodle.entrypoints=websecure
