@@ -7,7 +7,7 @@ COPY public ./public
 COPY vite.config.* ./
 COPY postcss.config.* ./
 COPY tailwind.config.* ./
-COPY tsconfig.json ./
+COPY jsconfig.json ./
 RUN npm run build
 
 FROM composer:2 AS vendor
@@ -55,4 +55,3 @@ RUN chmod +x /start.sh \
 
 EXPOSE 80
 CMD ["/start.sh"]
-
