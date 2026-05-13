@@ -4,7 +4,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import CrmSubnav from '@/Components/CrmSubnav';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
@@ -49,6 +49,23 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
     const stages = selectedPipeline?.stages ?? [];
     const filteredCohorts = (cohorts ?? []).filter((c) => String(c.course_id) === String(form.data.course_id));
 
+    const [conversion, setConversion] = useState({
+        open: false,
+        loading: false,
+        preview: null,
+        use_student: false,
+        pipeline_id: null,
+        stage_id: null,
+        errors: {},
+        data: {
+            first_name: form.data.first_name,
+            last_name: form.data.last_name,
+            email: form.data.email,
+            phone: form.data.phone,
+            identity_doc: form.data.identity_doc,
+        },
+    });
+
     const onPipelineChange = (e) => {
         const nextPipelineId = e.target.value;
         const nextPipeline = (pipelines ?? []).find((p) => String(p.id) === String(nextPipelineId));
@@ -59,6 +76,52 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
         }));
     };
 
+    const openConversion = async ({ pipelineId, stageId }) => {
+        setConversion((s) => ({
+            ...s,
+            open: true,
+            loading: true,
+            preview: null,
+            pipeline_id: pipelineId,
+            stage_id: stageId,
+            errors: {},
+            data: {
+                first_name: form.data.first_name ?? '',
+                last_name: form.data.last_name ?? '',
+                email: form.data.email ?? '',
+                phone: form.data.phone ?? '',
+                identity_doc: form.data.identity_doc ?? '',
+            },
+        }));
+
+        try {
+            const res = await axios.post(route('crm.leads.conversion.preview', lead.id), { pipeline_id: pipelineId, stage_id: stageId });
+            const student = res.data?.student ?? null;
+            setConversion((s) => ({
+                ...s,
+                loading: false,
+                preview: res.data,
+                use_student: !!student,
+                data: student
+                    ? {
+                          first_name: student.first_name ?? '',
+                          last_name: student.last_name ?? '',
+                          email: student.email ?? '',
+                          phone: student.phone ?? '',
+                          identity_doc: student.identity_doc ?? '',
+                      }
+                    : s.data,
+            }));
+        } catch (e) {
+            const message = e?.response?.data?.message ?? 'No se pudo preparar la conversión.';
+            setConversion((s) => ({ ...s, loading: false, errors: { general: message } }));
+        }
+    };
+
+    const closeConversion = () => {
+        setConversion((s) => ({ ...s, open: false, loading: false, preview: null, errors: {} }));
+    };
+
     const onCourseChange = (e) => {
         const nextCourseId = e.target.value;
         form.setData((data) => ({
@@ -66,6 +129,16 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
             course_id: nextCourseId,
             cohort_id: '',
         }));
+    };
+
+    const onStageChange = (e) => {
+        const nextStageId = Number(e.target.value);
+        const stage = stages.find((s) => Number(s.id) === nextStageId);
+        if (stage?.is_won) {
+            openConversion({ pipelineId: form.data.pipeline_id, stageId: nextStageId });
+            return;
+        }
+        form.setData('stage_id', e.target.value);
     };
 
     const save = (e) => {
@@ -170,7 +243,7 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
                                         <select
                                             className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
                                             value={form.data.stage_id}
-                                            onChange={(e) => form.setData('stage_id', e.target.value)}
+                                        onChange={onStageChange}
                                         >
                                             {stages.map((s) => (
                                                 <option key={s.id} value={s.id}>
@@ -313,6 +386,114 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
                     </div>
                 </div>
             </div>
+
+            {conversion.open ? (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+                    <div className="w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-lg">
+                        <div className="border-b border-gray-100 p-4">
+                            <div className="text-sm font-semibold text-gray-900">Confirmar conversión</div>
+                            <div className="mt-1 text-sm text-gray-600">Lead #{lead.id}</div>
+                        </div>
+                        <div className="space-y-4 p-4">
+                            {conversion.loading ? <div className="text-sm text-gray-700">Procesando…</div> : null}
+                            {conversion.errors?.general ? <div className="text-sm text-red-600">{conversion.errors.general}</div> : null}
+
+                            {conversion.preview?.plan ? (
+                                <div className="rounded-md border bg-gray-50 p-3 text-sm text-gray-800">
+                                    Al confirmar, se matricula en <span className="font-medium">{conversion.preview.course?.fullname ?? '—'}</span>
+                                    {conversion.preview.cohort ? (
+                                        <>
+                                            {' '}
+                                            - Cohorte <span className="font-medium">{conversion.preview.cohort.name}</span>
+                                        </>
+                                    ) : null}
+                                    , y se generará un plan de pagos por un total de <span className="font-medium">{conversion.preview.plan.total}</span>.
+                                </div>
+                            ) : null}
+
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div>
+                                    <InputLabel value="Nombres" />
+                                    <TextInput
+                                        className="mt-1 block w-full"
+                                        disabled={conversion.use_student && (conversion.preview?.student?.first_name ?? '') !== ''}
+                                        value={conversion.data.first_name}
+                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, first_name: e.target.value } }))}
+                                    />
+                                    <InputError className="mt-2" message={conversion.errors.first_name} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Apellidos" />
+                                    <TextInput
+                                        className="mt-1 block w-full"
+                                        disabled={conversion.use_student && (conversion.preview?.student?.last_name ?? '') !== ''}
+                                        value={conversion.data.last_name}
+                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, last_name: e.target.value } }))}
+                                    />
+                                    <InputError className="mt-2" message={conversion.errors.last_name} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Email" />
+                                    <TextInput
+                                        className="mt-1 block w-full"
+                                        disabled={conversion.use_student && (conversion.preview?.student?.email ?? '') !== ''}
+                                        value={conversion.data.email}
+                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, email: e.target.value } }))}
+                                    />
+                                    <InputError className="mt-2" message={conversion.errors.email} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Teléfono (opcional)" />
+                                    <TextInput
+                                        className="mt-1 block w-full"
+                                        disabled={conversion.use_student && (conversion.preview?.student?.phone ?? '') !== ''}
+                                        value={conversion.data.phone}
+                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, phone: e.target.value } }))}
+                                    />
+                                    <InputError className="mt-2" message={conversion.errors.phone} />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <InputLabel value="Documento (DNI)" />
+                                    <TextInput
+                                        className="mt-1 block w-full"
+                                        disabled={conversion.use_student && (conversion.preview?.student?.identity_doc ?? '') !== ''}
+                                        value={conversion.data.identity_doc}
+                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, identity_doc: e.target.value } }))}
+                                    />
+                                    <InputError className="mt-2" message={conversion.errors.identity_doc} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-3 border-t border-gray-100 p-4">
+                            <button type="button" className="rounded-md border px-3 py-2 text-sm" onClick={closeConversion} disabled={conversion.loading}>
+                                Cancelar
+                            </button>
+                            <PrimaryButton
+                                onClick={() => {
+                                    setConversion((s) => ({ ...s, loading: true }));
+                                    router.post(
+                                        route('crm.leads.conversion.confirm', lead.id),
+                                        {
+                                            pipeline_id: conversion.pipeline_id,
+                                            stage_id: conversion.stage_id,
+                                            ...conversion.data,
+                                        },
+                                        {
+                                            preserveScroll: true,
+                                            onError: (errors) => setConversion((s) => ({ ...s, errors })),
+                                            onSuccess: () => closeConversion(),
+                                            onFinish: () => setConversion((s) => ({ ...s, loading: false })),
+                                        },
+                                    );
+                                }}
+                                disabled={conversion.loading}
+                            >
+                                {conversion.loading ? 'Procesando…' : 'Confirmar'}
+                            </PrimaryButton>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
         </AuthenticatedLayout>
     );
 }

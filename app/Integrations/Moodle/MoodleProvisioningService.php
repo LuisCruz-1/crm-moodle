@@ -42,14 +42,38 @@ class MoodleProvisioningService
         $username = $this->usernameFromEmail($email);
         $password = Str::password(16);
 
-        $created = $client->call('core_user_create_users', [
-            'users[0][username]' => $username,
-            'users[0][password]' => $password,
-            'users[0][firstname]' => $firstName,
-            'users[0][lastname]' => $lastName,
-            'users[0][email]' => $email,
-            'users[0][auth]' => 'manual',
-        ]);
+        try {
+            $created = $client->call('core_user_create_users', [
+                'users[0][username]' => $username,
+                'users[0][password]' => $password,
+                'users[0][firstname]' => $firstName,
+                'users[0][lastname]' => $lastName,
+                'users[0][email]' => $email,
+                'users[0][auth]' => 'manual',
+            ]);
+        } catch (\Throwable $e) {
+            $again = $client->call('core_user_get_users_by_field', [
+                'field' => 'email',
+                'values[0]' => $email,
+            ]);
+
+            if (is_array($again) && isset($again[0]) && is_array($again[0])) {
+                $moodleId = (int) ($again[0]['id'] ?? 0);
+                if ($moodleId) {
+                    return LmsUser::query()->updateOrCreate(
+                        ['moodle_id' => $moodleId],
+                        [
+                            'email' => $email,
+                            'username' => (string) ($again[0]['username'] ?? '') ?: null,
+                            'first_name' => (string) ($again[0]['firstname'] ?? $firstName) ?: null,
+                            'last_name' => (string) ($again[0]['lastname'] ?? $lastName) ?: null,
+                        ]
+                    );
+                }
+            }
+
+            throw $e;
+        }
 
         if (! is_array($created) || ! isset($created[0]) || ! is_array($created[0])) {
             throw new \RuntimeException('Moodle core_user_create_users: Respuesta inválida.');
@@ -78,19 +102,38 @@ class MoodleProvisioningService
             $roleId = 5;
         }
 
-        $this->client()->call('enrol_manual_enrol_users', [
-            'enrolments[0][roleid]' => $roleId,
-            'enrolments[0][userid]' => $moodleUserId,
-            'enrolments[0][courseid]' => $moodleCourseId,
-        ]);
+        try {
+            $this->client()->call('enrol_manual_enrol_users', [
+                'enrolments[0][roleid]' => $roleId,
+                'enrolments[0][userid]' => $moodleUserId,
+                'enrolments[0][courseid]' => $moodleCourseId,
+            ]);
+        } catch (\Throwable $e) {
+            $msg = mb_strtolower($e->getMessage());
+            if (str_contains($msg, 'already') && str_contains($msg, 'enrol')) {
+                return;
+            }
+            if (str_contains($msg, 'alreadyenrolled') || str_contains($msg, 'enrolmentalready')) {
+                return;
+            }
+            throw $e;
+        }
     }
 
     public function addUserToGroup(int $moodleUserId, int $moodleGroupId): void
     {
-        $this->client()->call('core_group_add_group_members', [
-            'members[0][groupid]' => $moodleGroupId,
-            'members[0][userid]' => $moodleUserId,
-        ]);
+        try {
+            $this->client()->call('core_group_add_group_members', [
+                'members[0][groupid]' => $moodleGroupId,
+                'members[0][userid]' => $moodleUserId,
+            ]);
+        } catch (\Throwable $e) {
+            $msg = mb_strtolower($e->getMessage());
+            if (str_contains($msg, 'already') && (str_contains($msg, 'member') || str_contains($msg, 'group'))) {
+                return;
+            }
+            throw $e;
+        }
     }
 
     private function client(): MoodleClient
@@ -114,4 +157,3 @@ class MoodleProvisioningService
         return mb_substr($base, 0, 20).$suffix;
     }
 }
-
