@@ -43,13 +43,13 @@ class BackofficeController extends Controller
             ->select('pipeline_stages.name', DB::raw('count(leads.id) as value'))
             ->where('leads.status', 'active')
             ->whereNull('leads.deleted_at')
-            ->groupBy('pipeline_stages.id', 'pipeline_stages.name', 'pipeline_stages.sort_order')
-            ->orderBy('pipeline_stages.sort_order')
+            ->groupBy('pipeline_stages.id', 'pipeline_stages.name', 'pipeline_stages.position')
+            ->orderBy('pipeline_stages.position')
             ->get();
 
         // Top Advisors
         $topAdvisors = DB::table('leads')
-            ->join('users', 'leads.assigned_to', '=', 'users.id')
+            ->join('users', 'leads.assigned_to_user_id', '=', 'users.id')
             ->select('users.name', DB::raw('count(leads.id) as value'))
             ->where('leads.status', 'won')
             ->groupBy('users.id', 'users.name')
