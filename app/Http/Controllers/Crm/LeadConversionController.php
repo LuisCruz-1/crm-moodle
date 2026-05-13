@@ -168,8 +168,20 @@ class LeadConversionController extends Controller
             ]);
         }
 
-        ConvertLeadJob::dispatch($lead->id, $toPipeline->id, $toStage->id, $request->user()?->id)
-            ->onConnection('redis');
+        try {
+            ConvertLeadJob::dispatchSync($lead->id, $toPipeline->id, $toStage->id, $request->user()?->id);
+        } catch (\Throwable $e) {
+            $lead->update([
+                'status' => 'conversion_failed',
+                'metadata' => array_merge($lead->metadata ?? [], [
+                    'conversion_error' => mb_substr($e->getMessage(), 0, 500),
+                ]),
+            ]);
+
+            throw ValidationException::withMessages([
+                'general' => $e->getMessage(),
+            ]);
+        }
 
         if ($request->expectsJson()) {
             return response()->json(['ok' => true]);

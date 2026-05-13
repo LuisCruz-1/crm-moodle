@@ -29,6 +29,7 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
     const [studentResults, setStudentResults] = useState([]);
     const [linkedStudent, setLinkedStudent] = useState(lead.student ?? null);
     const usingStudent = !!form.data.student_id && !!linkedStudent;
+    const isWon = lead.status === 'won';
 
     useEffect(() => {
         const q = studentQuery.trim();
@@ -180,6 +181,7 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
                                     <TextInput
                                         className="mt-1 block w-full"
                                         value={studentQuery}
+                                        disabled={isWon}
                                         onChange={(e) => setStudentQuery(e.target.value)}
                                         placeholder="Busca por email, DNI o nombre (mínimo 2 caracteres)"
                                     />
@@ -211,6 +213,7 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
                                             Seleccionado: {linkedStudent?.email ?? `ID ${form.data.student_id}`}
                                             <button
                                                 type="button"
+                                                disabled={isWon}
                                                 className="ml-3 rounded-md border px-2 py-1 text-xs"
                                                 onClick={() => {
                                                     form.setData('student_id', '');
@@ -229,7 +232,12 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div>
                                         <InputLabel value="Pipeline" />
-                                        <select className="mt-1 w-full rounded-md border-gray-300 shadow-sm" value={form.data.pipeline_id} onChange={onPipelineChange}>
+                                        <select
+                                            className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
+                                            value={form.data.pipeline_id}
+                                            disabled={isWon}
+                                            onChange={onPipelineChange}
+                                        >
                                             {(pipelines ?? []).map((p) => (
                                                 <option key={p.id} value={p.id}>
                                                     {p.name}
@@ -240,11 +248,7 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
                                     </div>
                                     <div>
                                         <InputLabel value="Etapa" />
-                                        <select
-                                            className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
-                                            value={form.data.stage_id}
-                                        onChange={onStageChange}
-                                        >
+                                        <select className="mt-1 w-full rounded-md border-gray-300 shadow-sm" disabled={isWon} value={form.data.stage_id} onChange={onStageChange}>
                                             {stages.map((s) => (
                                                 <option key={s.id} value={s.id}>
                                                     {s.name}
@@ -260,6 +264,7 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
                                     <select
                                         className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
                                         value={form.data.assigned_to_user_id}
+                                        disabled={isWon}
                                         onChange={(e) => form.setData('assigned_to_user_id', e.target.value)}
                                     >
                                         <option value="">Sin asignar</option>
@@ -275,7 +280,7 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div>
                                         <InputLabel value="Curso (obligatorio)" />
-                                        <select className="mt-1 w-full rounded-md border-gray-300 shadow-sm" value={form.data.course_id} onChange={onCourseChange}>
+                                        <select className="mt-1 w-full rounded-md border-gray-300 shadow-sm" disabled={isWon} value={form.data.course_id} onChange={onCourseChange}>
                                             {(courses ?? []).map((c) => (
                                                 <option key={c.id} value={c.id}>
                                                     {c.fullname}
@@ -289,6 +294,7 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
                                         <select
                                             className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
                                             value={form.data.cohort_id}
+                                            disabled={isWon}
                                             onChange={(e) => form.setData('cohort_id', e.target.value)}
                                         >
                                             <option value="">—</option>
@@ -305,12 +311,12 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div>
                                         <InputLabel value="Nombre" />
-                                        <TextInput className="mt-1 block w-full" disabled={usingStudent} value={form.data.first_name} onChange={(e) => form.setData('first_name', e.target.value)} />
+                                        <TextInput className="mt-1 block w-full" disabled={usingStudent || isWon} value={form.data.first_name} onChange={(e) => form.setData('first_name', e.target.value)} />
                                         <InputError className="mt-2" message={form.errors.first_name} />
                                     </div>
                                     <div>
                                         <InputLabel value="Apellidos" />
-                                        <TextInput className="mt-1 block w-full" disabled={usingStudent} value={form.data.last_name} onChange={(e) => form.setData('last_name', e.target.value)} />
+                                        <TextInput className="mt-1 block w-full" disabled={usingStudent || isWon} value={form.data.last_name} onChange={(e) => form.setData('last_name', e.target.value)} />
                                         <InputError className="mt-2" message={form.errors.last_name} />
                                     </div>
                                 </div>
@@ -318,24 +324,24 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div>
                                         <InputLabel value="Email" />
-                                        <TextInput className="mt-1 block w-full" disabled={usingStudent} value={form.data.email} onChange={(e) => form.setData('email', e.target.value)} />
+                                        <TextInput className="mt-1 block w-full" disabled={usingStudent || isWon} value={form.data.email} onChange={(e) => form.setData('email', e.target.value)} />
                                         <InputError className="mt-2" message={form.errors.email} />
                                     </div>
                                     <div>
                                         <InputLabel value="Teléfono" />
-                                        <TextInput className="mt-1 block w-full" disabled={usingStudent} value={form.data.phone} onChange={(e) => form.setData('phone', e.target.value)} />
+                                        <TextInput className="mt-1 block w-full" disabled={usingStudent || isWon} value={form.data.phone} onChange={(e) => form.setData('phone', e.target.value)} />
                                         <InputError className="mt-2" message={form.errors.phone} />
                                     </div>
                                 </div>
 
                                 <div>
                                     <InputLabel value="DNI/Identificación" />
-                                    <TextInput className="mt-1 block w-full" disabled={usingStudent} value={form.data.identity_doc} onChange={(e) => form.setData('identity_doc', e.target.value)} />
+                                    <TextInput className="mt-1 block w-full" disabled={usingStudent || isWon} value={form.data.identity_doc} onChange={(e) => form.setData('identity_doc', e.target.value)} />
                                     <InputError className="mt-2" message={form.errors.identity_doc} />
                                 </div>
 
                                 <div className="flex items-center gap-3">
-                                    <PrimaryButton disabled={form.processing}>Guardar cambios</PrimaryButton>
+                                    {!isWon && <PrimaryButton disabled={form.processing}>Guardar cambios</PrimaryButton>}
                                     <span className="text-sm text-gray-600">Estado: {lead.status}</span>
                                 </div>
                             </form>
