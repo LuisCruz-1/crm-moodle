@@ -12,11 +12,15 @@ use App\Http\Controllers\Crm\LeadNoteController;
 use App\Http\Controllers\Crm\StudentSearchController;
 use App\Http\Controllers\Crm\PipelineController;
 use App\Http\Controllers\Crm\PipelineStageController;
+use App\Http\Controllers\Students\StudentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Settings\MoodleController as SettingsMoodleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+use App\Http\Controllers\Students\StudentEnrollmentController;
+use App\Http\Controllers\Finance\PaymentSubmissionController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -70,13 +74,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('estudiantes')->name('students.')->group(function () {
-        Route::get('/', [BackofficeController::class, 'studentsIndex'])->name('index');
-        Route::get('/crear', [BackofficeController::class, 'studentsCreate'])->name('create');
+        Route::get('/', [StudentController::class, 'index'])->name('index');
+        Route::get('/crear', [StudentController::class, 'create'])->name('create');
+        Route::post('/', [StudentController::class, 'store'])->name('store');
+        Route::get('/{student}', [StudentController::class, 'show'])->name('show');
+        Route::get('/{student}/editar', [StudentController::class, 'edit'])->name('edit');
+        Route::put('/{student}', [StudentController::class, 'update'])->name('update');
+        Route::delete('/{student}', [StudentController::class, 'destroy'])->name('destroy');
+        Route::post('/{student}/matricular', [StudentEnrollmentController::class, 'store'])->name('enrollments.store');
     });
 
     Route::prefix('finanzas')->name('finance.')->group(function () {
-        Route::get('/inbox', [BackofficeController::class, 'financeInbox'])->name('inbox.index');
-        Route::get('/cuotas', [BackofficeController::class, 'financeInstallments'])->name('installments.index');
+        Route::get('/inbox', [PaymentSubmissionController::class, 'index'])->name('inbox.index');
+        Route::post('/inbox/{submission}/aprobar', [PaymentSubmissionController::class, 'approve'])->name('inbox.approve');
+        Route::post('/inbox/{submission}/rechazar', [PaymentSubmissionController::class, 'reject'])->name('inbox.reject');
+
+        Route::get('/cuotas', [InstallmentController::class, 'index'])->name('installments.index');
+        Route::put('/cuotas/{installment}', [InstallmentController::class, 'update'])->name('installments.update');
+        Route::post('/cuotas/{installment}/descuento', [InstallmentController::class, 'applyDiscount'])->name('installments.discount');
+        Route::post('/cuotas/{installment}/pagar', [InstallmentController::class, 'registerPayment'])->name('installments.pay');
+
         Route::get('/metodos-de-pago', [BackofficeController::class, 'financePaymentMethods'])->name('payment_methods.index');
         Route::get('/monedas', [BackofficeController::class, 'financeCurrencies'])->name('currencies.index');
         Route::get('/tipos-de-pago', [BackofficeController::class, 'financePaymentTypes'])->name('payment_types.index');

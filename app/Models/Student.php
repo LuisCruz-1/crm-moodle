@@ -19,4 +19,29 @@ class Student extends Model
         'identity_doc',
         'phone',
     ];
+
+    public function lmsUser()
+    {
+        return $this->belongsTo(LmsUser::class);
+    }
+
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function installments()
+    {
+        return $this->hasMany(Installment::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function timelineEvents()
+    {
+        return $this->hasMany(StudentTimelineEvent::class)->orderByDesc('created_at');
+    }
 }

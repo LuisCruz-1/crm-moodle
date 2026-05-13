@@ -49,7 +49,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Estudiantes
                                 </NavLink>
                                 <NavLink
-                                    href={route('finance.inbox.index')}
+                                    href={route('finance.installments.index')}
                                     active={route().current('finance.*')}
                                 >
                                     Finanzas

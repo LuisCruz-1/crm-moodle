@@ -64,6 +64,7 @@ if [ "$ROLE" = "web" ]; then
 fi
 
 if [ "$ROLE" = "worker" ]; then
+    php artisan config:clear || true
     exec php artisan queue:work redis --sleep=3 --tries=3 --timeout=90
 fi
 

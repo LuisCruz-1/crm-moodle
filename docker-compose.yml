@@ -137,6 +137,7 @@ services:
   redis:
     image: redis:alpine
     restart: always
+    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
     networks:
       - app-network
 

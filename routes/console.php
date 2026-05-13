@@ -72,3 +72,5 @@ Schedule::call(function (SettingsStore $settings) {
         SyncMoodleJob::dispatch()->onConnection('redis');
     }
 })->everyMinute()->name('moodle:sync-auto');
+
+Schedule::command('finance:mark-overdue')->dailyAt('00:05');
