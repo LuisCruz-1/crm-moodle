@@ -29,7 +29,9 @@ class MoodleController extends Controller
             ],
             'sync' => [
                 'status' => $settings->getString('moodle.last_sync_status'),
+                'step' => $settings->getString('moodle.last_sync_step'),
                 'error' => $settings->getString('moodle.last_sync_error'),
+                'stats' => $settings->getString('moodle.last_sync_stats'),
                 'started_at' => $settings->getString('moodle.last_sync_started_at'),
                 'finished_at' => $settings->getString('moodle.last_sync_finished_at'),
                 'last_sync_at' => $settings->getString('moodle.last_sync_at'),
@@ -69,4 +71,3 @@ class MoodleController extends Controller
         return back();
     }
 }
-

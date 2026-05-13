@@ -1,3 +1,4 @@
+import AcademicsSubnav from '@/Components/AcademicsSubnav';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 
@@ -7,7 +8,8 @@ export default function Index({ courses }) {
             <Head title="Académico · Cursos" />
 
             <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
+                    <AcademicsSubnav />
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
@@ -37,4 +39,3 @@ export default function Index({ courses }) {
         </AuthenticatedLayout>
     );
 }
-

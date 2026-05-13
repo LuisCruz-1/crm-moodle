@@ -6,6 +6,13 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm } from '@inertiajs/react';
 
 export default function Index({ config, sync }) {
+    let stats = null;
+    try {
+        stats = sync?.stats ? JSON.parse(sync.stats) : null;
+    } catch (e) {
+        stats = null;
+    }
+
     const form = useForm({
         url: config?.url ?? '',
         token: '',
@@ -33,10 +40,58 @@ export default function Index({ config, sync }) {
                         <div className="text-sm font-medium text-gray-700">Estado de sincronización</div>
                         <div className="mt-3 grid grid-cols-1 gap-2 text-sm text-gray-800">
                             <div>Estado: {sync?.status ?? '—'}</div>
+                            <div>Paso: {sync?.step ?? '—'}</div>
                             <div>Última: {sync?.last_sync_at ?? '—'}</div>
                             <div>Inicio: {sync?.started_at ?? '—'}</div>
                             <div>Fin: {sync?.finished_at ?? '—'}</div>
+                            {stats ? (
+                                <div>
+                                    Totales: categorías {stats.categories ?? 0}, cursos {stats.courses ?? 0}, cohortes {stats.cohorts ?? 0}, usuarios {stats.users ?? 0}
+                                </div>
+                            ) : null}
                             {sync?.error ? <div className="text-red-600">Error: {sync.error}</div> : null}
+                        </div>
+                    </div>
+
+                    <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">
+                        <div className="text-sm font-medium text-gray-700">Guía rápida (Moodle)</div>
+                        <div className="mt-3 space-y-4 text-sm text-gray-800">
+                            <div className="font-medium">1) Activar Web Services (REST)</div>
+                            <div>
+                                En Moodle: Site administration → Server → Web services → Manage protocols → habilitar REST.
+                                Luego: Site administration → Server → Web services → Web services overview → habilitar Web services.
+                            </div>
+
+                            <div className="font-medium">2) Crear el servicio y habilitar funciones</div>
+                            <div>
+                                Site administration → Server → Web services → External services → Add.
+                                En “Functions” agregar como mínimo:
+                                <div className="mt-2 rounded-md border bg-gray-50 p-3 font-mono text-xs">
+                                    core_course_get_categories<br />
+                                    core_course_get_courses<br />
+                                    core_group_get_course_groups<br />
+                                    core_enrol_get_enrolled_users
+                                </div>
+                            </div>
+
+                            <div className="font-medium">3) Generar el token</div>
+                            <div>
+                                Site administration → Server → Web services → Manage tokens → Create token.
+                                Usa un usuario con permisos suficientes para ver cursos/grupos/inscritos.
+                            </div>
+
+                            <div className="font-medium">4) URL de Moodle</div>
+                            <div>
+                                Usa la URL base de tu Moodle (ej: https://tudominio.com o https://tudominio.com/moodle).
+                                El endpoint REST lo arma el sistema automáticamente.
+                            </div>
+
+                            <div className="font-medium">5) SSO Client ID / Secret (opcional)</div>
+                            <div>
+                                Si usarás SSO vía OAuth2/OpenID Connect, normalmente se obtiene en:
+                                Site administration → Server → OAuth 2 services (o el plugin de OpenID Connect) al crear una credencial.
+                                Si no usarás SSO ahora, puedes dejarlo vacío.
+                            </div>
                         </div>
                     </div>
 
@@ -109,4 +164,3 @@ export default function Index({ config, sync }) {
         </AuthenticatedLayout>
     );
 }
-

@@ -27,6 +27,7 @@ class SyncMoodleJob implements ShouldQueue
     {
         $settings->setString('moodle', 'moodle.last_sync_status', 'running');
         $settings->setString('moodle', 'moodle.last_sync_error', null);
+        $settings->setString('moodle', 'moodle.last_sync_step', 'init');
         $settings->setString('moodle', 'moodle.last_sync_started_at', now()->toISOString());
 
         $baseUrl = (string) $settings->getString('moodle.url', '');
@@ -39,6 +40,14 @@ class SyncMoodleJob implements ShouldQueue
         $client = new MoodleClient($baseUrl, $token);
 
         DB::transaction(function () use ($client, $settings) {
+            $stats = [
+                'categories' => 0,
+                'courses' => 0,
+                'cohorts' => 0,
+                'users' => 0,
+            ];
+
+            $settings->setString('moodle', 'moodle.last_sync_step', 'categories');
             $categories = $client->call('core_course_get_categories', [
                 'criteria[0][key]' => 'parent',
                 'criteria[0][value]' => 0,
@@ -61,10 +70,12 @@ class SyncMoodleJob implements ShouldQueue
                         'created_at' => now(),
                     ]
                 );
+                $stats['categories']++;
             }
 
             $categoryIdByMoodle = DB::table('lms_categories')->pluck('id', 'moodle_id');
 
+            $settings->setString('moodle', 'moodle.last_sync_step', 'categories.parents');
             foreach ($categories as $cat) {
                 if (! is_array($cat)) {
                     continue;
@@ -78,6 +89,7 @@ class SyncMoodleJob implements ShouldQueue
                     ->update(['parent_id' => $parentId]);
             }
 
+            $settings->setString('moodle', 'moodle.last_sync_step', 'courses');
             $courses = $client->call('core_course_get_courses');
 
             foreach ($courses as $course) {
@@ -97,6 +109,7 @@ class SyncMoodleJob implements ShouldQueue
                         'visible' => (bool) ($course['visible'] ?? true),
                     ]
                 );
+                $stats['courses']++;
             }
 
             $limit = $settings->getInt('moodle.sync_courses_limit', 0);
@@ -107,6 +120,7 @@ class SyncMoodleJob implements ShouldQueue
 
             $localCourses = $coursesQuery->get(['id', 'moodle_id']);
 
+            $settings->setString('moodle', 'moodle.last_sync_step', 'cohorts.users');
             foreach ($localCourses as $localCourse) {
                 $groups = $client->call('core_group_get_course_groups', [
                     'courseid' => $localCourse->moodle_id,
@@ -129,6 +143,7 @@ class SyncMoodleJob implements ShouldQueue
                                 'name' => (string) ($group['name'] ?? ''),
                             ]
                         );
+                        $stats['cohorts']++;
                     }
                 }
 
@@ -158,11 +173,15 @@ class SyncMoodleJob implements ShouldQueue
                                 'created_at' => now(),
                             ]
                         );
+                        $stats['users']++;
                     }
                 }
             }
+
+            $settings->setString('moodle', 'moodle.last_sync_stats', json_encode($stats, JSON_THROW_ON_ERROR));
         });
 
+        $settings->setString('moodle', 'moodle.last_sync_step', 'done');
         $settings->setString('moodle', 'moodle.last_sync_status', 'success');
         $settings->setString('moodle', 'moodle.last_sync_finished_at', now()->toISOString());
         $settings->setString('moodle', 'moodle.last_sync_at', now()->toISOString());
@@ -173,10 +192,11 @@ class SyncMoodleJob implements ShouldQueue
         try {
             $settings = app(SettingsStore::class);
             $settings->setString('moodle', 'moodle.last_sync_status', 'failed');
-            $settings->setString('moodle', 'moodle.last_sync_error', mb_substr($e->getMessage(), 0, 2000));
+            $step = (string) $settings->getString('moodle.last_sync_step', '');
+            $prefix = $step !== '' ? "[{$step}] " : '';
+            $settings->setString('moodle', 'moodle.last_sync_error', mb_substr($prefix.$e->getMessage(), 0, 2000));
             $settings->setString('moodle', 'moodle.last_sync_finished_at', now()->toISOString());
         } catch (\Throwable $ignore) {
         }
     }
 }
-

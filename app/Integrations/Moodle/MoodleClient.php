@@ -30,12 +30,16 @@ class MoodleClient
         $data = $response->json();
 
         if (! is_array($data)) {
-            throw new \RuntimeException('Respuesta inválida de Moodle.');
+            throw new \RuntimeException("Moodle {$function}: Respuesta inválida.");
         }
 
         if (isset($data['exception']) || isset($data['errorcode'])) {
-            $message = (string) ($data['message'] ?? $data['exception'] ?? $data['errorcode'] ?? 'Error Moodle');
-            throw new \RuntimeException($message);
+            $errorCode = (string) ($data['errorcode'] ?? $data['exception'] ?? 'Error');
+            $message = (string) ($data['message'] ?? 'Error Moodle');
+            $debug = (string) ($data['debuginfo'] ?? '');
+            $extra = $debug !== '' ? " | {$debug}" : '';
+
+            throw new \RuntimeException("Moodle {$function}: {$errorCode} - {$message}{$extra}");
         }
 
         return $data;
@@ -46,4 +50,3 @@ class MoodleClient
         return Http::timeout(30)->retry(2, 250);
     }
 }
-
