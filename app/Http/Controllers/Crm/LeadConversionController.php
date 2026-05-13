@@ -93,7 +93,7 @@ class LeadConversionController extends Controller
         ]);
     }
 
-    public function confirm(Request $request, Lead $lead): RedirectResponse
+    public function confirm(Request $request, Lead $lead): RedirectResponse|JsonResponse
     {
         $data = $request->validate([
             'pipeline_id' => ['required', 'integer'],
@@ -182,6 +182,10 @@ class LeadConversionController extends Controller
             throw ValidationException::withMessages([
                 'general' => mb_substr($e->getMessage(), 0, 2000),
             ]);
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true]);
         }
 
         return back();

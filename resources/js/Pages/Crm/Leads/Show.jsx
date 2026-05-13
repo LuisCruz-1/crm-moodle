@@ -471,20 +471,28 @@ export default function Show({ lead, pipelines, courses, cohorts, salesUsers }) 
                             <PrimaryButton
                                 onClick={() => {
                                     setConversion((s) => ({ ...s, loading: true }));
-                                    router.post(
-                                        route('crm.leads.conversion.confirm', lead.id),
-                                        {
+                                    axios
+                                        .post(route('crm.leads.conversion.confirm', lead.id), {
                                             pipeline_id: conversion.pipeline_id,
                                             stage_id: conversion.stage_id,
                                             ...conversion.data,
-                                        },
-                                        {
-                                            preserveScroll: true,
-                                            onError: (errors) => setConversion((s) => ({ ...s, errors })),
-                                            onSuccess: () => closeConversion(),
-                                            onFinish: () => setConversion((s) => ({ ...s, loading: false })),
-                                        },
-                                    );
+                                        })
+                                        .then(() => {
+                                            closeConversion();
+                                            router.reload({ preserveScroll: true });
+                                        })
+                                        .catch((e) => {
+                                            const errors = e?.response?.data?.errors ?? {};
+                                            const message = e?.response?.data?.message ?? null;
+                                            setConversion((s) => ({
+                                                ...s,
+                                                errors: {
+                                                    ...errors,
+                                                    ...(message ? { general: message } : {}),
+                                                },
+                                            }));
+                                        })
+                                        .finally(() => setConversion((s) => ({ ...s, loading: false })));
                                 }}
                                 disabled={conversion.loading}
                             >
