@@ -74,7 +74,7 @@ class StudentController extends Controller
             'enrollments.cohort',
             'timelineEvents.createdBy:id,name',
             'installments' => function ($q) {
-                $q->orderBy('due_date')->with('paymentType'); // if relationship exists
+                $q->orderBy('due_date')->with(['paymentType', 'enrollment.course']);
             }
         ]);
 

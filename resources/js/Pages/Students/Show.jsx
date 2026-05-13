@@ -99,6 +99,7 @@ export default function Show({ student, courses, cohorts }) {
                                     <table className="min-w-full divide-y divide-gray-200">
                                         <thead className="bg-gray-50">
                                             <tr>
+                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Curso</th>
                                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Concepto</th>
                                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Vencimiento</th>
                                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Monto</th>
@@ -109,6 +110,7 @@ export default function Show({ student, courses, cohorts }) {
                                         <tbody className="divide-y divide-gray-200">
                                             {student.installments.map(i => (
                                                 <tr key={i.id}>
+                                                    <td className="px-4 py-2 text-sm">{i.enrollment?.course?.fullname ?? '—'}</td>
                                                     <td className="px-4 py-2 text-sm">{i.concept ?? i.payment_type?.name ?? 'Cuota'}</td>
                                                     <td className="px-4 py-2 text-sm">{new Date(i.due_date).toLocaleDateString()}</td>
                                                     <td className="px-4 py-2 text-sm">${i.amount}</td>
