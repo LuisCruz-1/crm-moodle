@@ -77,7 +77,7 @@ export default function Index({ submissions, filters, paymentMethods }) {
                                             <span className="text-xs text-gray-500">{sub.payment_method?.name}</span>
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4 text-sm text-blue-600">
-                                            <a href={sub.file_path} target="_blank" rel="noreferrer">Ver archivo</a>
+                                            <a href={`/storage/${sub.file_path}`} target="_blank" rel="noreferrer">Ver archivo</a>
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">{sub.status}</td>
                                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
