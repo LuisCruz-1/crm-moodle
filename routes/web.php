@@ -22,6 +22,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\Students\StudentEnrollmentController;
 use App\Http\Controllers\Finance\PaymentSubmissionController;
 use App\Http\Controllers\Finance\InstallmentController;
+use App\Http\Controllers\Finance\PaymentController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -94,6 +95,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/cuotas/{installment}', [InstallmentController::class, 'update'])->name('installments.update');
         Route::post('/cuotas/{installment}/descuento', [InstallmentController::class, 'applyDiscount'])->name('installments.discount');
         Route::post('/cuotas/{installment}/pagar', [InstallmentController::class, 'registerPayment'])->name('installments.pay');
+
+        Route::get('/pagos', [PaymentController::class, 'index'])->name('payments.index');
 
         Route::get('/metodos-de-pago', [BackofficeController::class, 'financePaymentMethods'])->name('payment_methods.index');
         Route::get('/monedas', [BackofficeController::class, 'financeCurrencies'])->name('currencies.index');

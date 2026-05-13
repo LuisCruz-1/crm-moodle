@@ -73,6 +73,8 @@ class StudentController extends Controller
             'enrollments.course',
             'enrollments.cohort',
             'timelineEvents.createdBy:id,name',
+            'payments.paymentMethod',
+            'payments.installment.enrollment.course',
             'installments' => function ($q) {
                 $q->orderBy('due_date')->with(['paymentType', 'enrollment.course']);
             }

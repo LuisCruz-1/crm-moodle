@@ -15,6 +15,8 @@ class Payment extends Model
         'payment_method_id',
         'amount',
         'paid_at',
+        'reference',
+        'file_path',
         'source',
         'approved_by',
         'notes',

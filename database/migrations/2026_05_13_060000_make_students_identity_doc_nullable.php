@@ -1,18 +1,23 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement('ALTER TABLE students MODIFY identity_doc VARCHAR(255) NULL');
+        Schema::table('students', function (Blueprint $table) {
+            $table->string('identity_doc', 255)->nullable()->change();
+        });
     }
 
     public function down(): void
     {
-        DB::statement('ALTER TABLE students MODIFY identity_doc VARCHAR(255) NOT NULL');
+        Schema::table('students', function (Blueprint $table) {
+            $table->string('identity_doc', 255)->nullable(false)->change();
+        });
     }
 };
 

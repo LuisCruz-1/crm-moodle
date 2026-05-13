@@ -5,6 +5,7 @@ export default function FinanceSubnav() {
 
     const tabs = [
         { name: 'Gestión de Cuotas', href: route('finance.installments.index'), active: url.startsWith('/finanzas/cuotas') },
+        { name: 'Historial de Pagos', href: route('finance.payments.index'), active: url.startsWith('/finanzas/pagos') },
         { name: 'Inbox Comprobantes', href: route('finance.inbox.index'), active: url.startsWith('/finanzas/inbox') },
     ];
 

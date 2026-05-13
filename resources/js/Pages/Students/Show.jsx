@@ -127,12 +127,43 @@ export default function Show({ student, courses, cohorts }) {
                         </div>
 
                         <div className="bg-white p-6 shadow-sm sm:rounded-lg">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4">Historial</h3>
-                            {student.timeline_events?.length > 0 ? (
+                            <h3 className="text-lg font-medium text-gray-900 mb-4">Historial de Pagos</h3>
+                            {student.payments?.length > 0 ? (
                                 <div className="space-y-4">
-                                    {student.timeline_events.map(ev => (
+                                    {student.payments.map(p => (
+                                        <div key={p.id} className="text-sm p-3 border rounded-md">
+                                            <div className="flex justify-between">
+                                                <span className="font-bold text-gray-900">${p.amount}</span>
+                                                <span className="text-gray-500">{new Date(p.paid_at).toLocaleDateString()}</span>
+                                            </div>
+                                            <div className="text-xs text-gray-600 mt-1">
+                                                {p.payment_method?.name} {p.reference ? `(Ref: ${p.reference})` : ''}
+                                            </div>
+                                            <div className="text-xs text-gray-500 mt-1">
+                                                Cuota: {p.installment?.concept ?? '—'} - {p.installment?.enrollment?.course?.fullname ?? '—'}
+                                            </div>
+                                            {p.file_path && (
+                                                <div className="mt-2">
+                                                    <a href={`/storage/${p.file_path}`} target="_blank" rel="noreferrer" className="text-indigo-600 hover:text-indigo-900 text-xs">
+                                                        Ver Comprobante
+                                                    </a>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-500">Sin pagos registrados.</p>
+                            )}
+                        </div>
+
+                        <div className="bg-white p-6 shadow-sm sm:rounded-lg">
+                            <h3 className="text-lg font-medium text-gray-900 mb-4">Eventos de Línea de Tiempo</h3>
+                            {student.timelineEvents?.length > 0 ? (
+                                <div className="space-y-4">
+                                    {student.timelineEvents.map(ev => (
                                         <div key={ev.id} className="text-sm">
-                                            <div className="text-xs text-gray-500">{new Date(ev.created_at).toLocaleString()}</div>
+                                            <div className="text-xs text-gray-500">{new Date(ev.created_at).toLocaleString()} - {ev.created_by?.name ?? 'Sistema'}</div>
                                             <div className="font-medium text-gray-800">{ev.type}</div>
                                         </div>
                                     ))}

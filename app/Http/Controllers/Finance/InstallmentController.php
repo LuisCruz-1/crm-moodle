@@ -17,7 +17,7 @@ class InstallmentController extends Controller
     public function index(Request $request): Response
     {
         $query = Installment::query()
-            ->with(['student:id,first_name,last_name', 'enrollment.course:id,fullname', 'currency', 'paymentType'])
+            ->with(['student:id,first_name,last_name,email,identity_doc', 'enrollment.course:id,fullname', 'currency', 'paymentType'])
             ->orderBy('due_date', 'asc');
 
         if ($status = $request->input('status')) {
@@ -26,9 +26,20 @@ class InstallmentController extends Controller
             $query->whereIn('status', ['pending', 'overdue']);
         }
 
+        if ($search = $request->input('search')) {
+            $query->whereHas('student', function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('identity_doc', 'like', "%{$search}%");
+            })->orWhereHas('enrollment.course', function ($q) use ($search) {
+                $q->where('fullname', 'like', "%{$search}%");
+            });
+        }
+
         return Inertia::render('Finance/Installments/Index', [
             'installments' => $query->paginate(30)->withQueryString(),
-            'filters' => $request->only('status'),
+            'filters' => $request->only(['status', 'search']),
             'paymentMethods' => \App\Models\PaymentMethod::where('is_active', true)->get(),
         ]);
     }
@@ -89,19 +100,28 @@ class InstallmentController extends Controller
             'payment_method_id' => ['required', 'exists:payment_methods,id'],
             'amount' => ['required', 'numeric', 'min:0.01', 'max:' . $installment->balance],
             'paid_at' => ['required', 'date'],
+            'reference' => ['nullable', 'string', 'max:255'],
+            'file' => ['nullable', 'file', 'max:5120'], // 5MB max
             'notes' => ['nullable', 'string'],
         ]);
 
-        DB::transaction(function () use ($data, $installment, $request) {
+        $filePath = null;
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('receipts', 'public');
+        }
+
+        DB::transaction(function () use ($data, $installment, $request, $filePath) {
             Payment::create([
                 'student_id' => $installment->student_id,
                 'installment_id' => $installment->id,
                 'payment_method_id' => $data['payment_method_id'],
                 'amount' => $data['amount'],
                 'paid_at' => $data['paid_at'],
+                'reference' => $data['reference'] ?? null,
+                'file_path' => $filePath,
                 'source' => 'manual',
                 'approved_by' => $request->user()?->id,
-                'notes' => $data['notes'],
+                'notes' => $data['notes'] ?? null,
             ]);
 
             $installment->balance -= $data['amount'];

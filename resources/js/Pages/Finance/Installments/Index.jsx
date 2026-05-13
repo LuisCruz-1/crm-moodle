@@ -23,6 +23,9 @@ export default function Index({ installments, filters, paymentMethods }) {
     const [payAmount, setPayAmount] = useState('');
     const [paymentMethodId, setPaymentMethodId] = useState('');
     const [paidAt, setPaidAt] = useState('');
+    const [reference, setReference] = useState('');
+    const [notes, setNotes] = useState('');
+    const [receiptFile, setReceiptFile] = useState(null);
 
     const openModal = (inst, type) => {
         setSelectedInst(inst);
@@ -37,6 +40,9 @@ export default function Index({ installments, filters, paymentMethods }) {
             setPayAmount(inst.balance);
             setPaymentMethodId('');
             setPaidAt(new Date().toISOString().split('T')[0]);
+            setReference('');
+            setNotes('');
+            setReceiptFile(null);
         }
     };
 
@@ -57,7 +63,10 @@ export default function Index({ installments, filters, paymentMethods }) {
                 amount: payAmount,
                 payment_method_id: paymentMethodId,
                 paid_at: paidAt,
-            }, { onSuccess: () => setSelectedInst(null) });
+                reference: reference,
+                notes: notes,
+                file: receiptFile,
+            }, { onSuccess: () => setSelectedInst(null), forceFormData: true });
         }
     };
 
@@ -70,11 +79,11 @@ export default function Index({ installments, filters, paymentMethods }) {
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-4 border-b flex justify-between items-center">
+                        <div className="p-4 border-b flex flex-col md:flex-row md:justify-between items-center gap-4">
                             <select 
                                 className="rounded-md border-gray-300 shadow-sm"
                                 value={filters?.status ?? ''}
-                                onChange={e => router.get(route('finance.installments.index'), { status: e.target.value })}
+                                onChange={e => router.get(route('finance.installments.index'), { ...filters, status: e.target.value })}
                             >
                                 <option value="">Pendientes y Vencidas</option>
                                 <option value="pending">Pendientes</option>
@@ -82,6 +91,13 @@ export default function Index({ installments, filters, paymentMethods }) {
                                 <option value="partial">Abono Parcial</option>
                                 <option value="paid">Pagadas</option>
                             </select>
+                            
+                            <TextInput 
+                                className="w-full md:w-1/3" 
+                                placeholder="Buscar por estudiante, DNI, email o curso..." 
+                                value={filters?.search ?? ''}
+                                onChange={e => router.get(route('finance.installments.index'), { ...filters, search: e.target.value }, { preserveState: true, replace: true })}
+                            />
                         </div>
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
@@ -179,6 +195,18 @@ export default function Index({ installments, filters, paymentMethods }) {
                                         <option key={pm.id} value={pm.id}>{pm.name}</option>
                                     ))}
                                 </select>
+                            </div>
+                            <div>
+                                <InputLabel value="Número de Operación / Referencia" />
+                                <TextInput className="mt-1 block w-full" value={reference} onChange={e => setReference(e.target.value)} />
+                            </div>
+                            <div>
+                                <InputLabel value="Comprobante (Archivo)" />
+                                <input type="file" className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" onChange={e => setReceiptFile(e.target.files[0])} />
+                            </div>
+                            <div>
+                                <InputLabel value="Notas (Opcional)" />
+                                <TextInput className="mt-1 block w-full" value={notes} onChange={e => setNotes(e.target.value)} />
                             </div>
                         </div>
                     )}
