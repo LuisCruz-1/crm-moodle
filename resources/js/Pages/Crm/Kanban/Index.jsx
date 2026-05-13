@@ -6,13 +6,13 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 function leadTitle(lead) {
-    const first = lead.first_name ?? '';
-    const last = lead.last_name ?? '';
+    const first = lead.student?.first_name ?? lead.first_name ?? '';
+    const last = lead.student?.last_name ?? lead.last_name ?? '';
     const name = `${first} ${last}`.trim();
-    return name || lead.email || `Lead #${lead.id}`;
+    return name || lead.student?.email || lead.email || `Lead #${lead.id}`;
 }
 
 export default function Index({ pipelines, selectedPipeline, leads, filters, courses, salesUsers }) {
@@ -54,11 +54,11 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
             preview: null,
             errors: {},
             data: {
-                first_name: lead.first_name ?? '',
-                last_name: lead.last_name ?? '',
-                email: lead.email ?? '',
-                phone: lead.phone ?? '',
-                identity_doc: lead.identity_doc ?? '',
+                first_name: lead.student?.first_name ?? lead.first_name ?? '',
+                last_name: lead.student?.last_name ?? lead.last_name ?? '',
+                email: lead.student?.email ?? lead.email ?? '',
+                phone: lead.student?.phone ?? lead.phone ?? '',
+                identity_doc: lead.student?.identity_doc ?? lead.identity_doc ?? '',
             },
         }));
 
@@ -90,6 +90,15 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
     const closeConversion = () => {
         setConversion((s) => ({ ...s, open: false, loading: false, lead: null, preview: null, errors: {} }));
     };
+
+    const hasConverting = (leads ?? []).some((l) => l.status === 'converting');
+    useEffect(() => {
+        if (!hasConverting) return;
+        const t = setInterval(() => {
+            router.reload({ preserveScroll: true });
+        }, 5000);
+        return () => clearInterval(t);
+    }, [hasConverting]);
 
     const applyFilters = (next) => {
         router.get(
@@ -224,7 +233,7 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
                                             <div
                                                 key={lead.id}
                                                 className="rounded-md border p-3"
-                                                draggable
+                                                draggable={lead.status !== 'won'}
                                                 onDragStart={(e) => onDragStart(e, lead.id)}
                                             >
                                                 <div className="flex items-start justify-between gap-3">
@@ -233,8 +242,8 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
                                                     </Link>
                                                     <span className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700">#{lead.id}</span>
                                                 </div>
-                                                <div className="mt-1 text-xs text-gray-600">{lead.email ?? '—'}</div>
-                                                <div className="mt-1 text-xs text-gray-600">{lead.phone ?? '—'}</div>
+                                                <div className="mt-1 text-xs text-gray-600">{lead.student?.email ?? lead.email ?? '—'}</div>
+                                                <div className="mt-1 text-xs text-gray-600">{lead.student?.phone ?? lead.phone ?? '—'}</div>
                                                 <div className="mt-2">
                                                     {lead.status === 'converting' ? (
                                                         <span className="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-800">Convirtiendo</span>
@@ -242,12 +251,16 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
                                                     {lead.status === 'conversion_failed' ? (
                                                         <span className="rounded bg-red-100 px-2 py-1 text-xs text-red-700">Error</span>
                                                     ) : null}
+                                                    {lead.status === 'won' ? (
+                                                        <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-700">Ganado</span>
+                                                    ) : null}
                                                 </div>
 
                                                 <div className="mt-3 grid grid-cols-1 gap-2">
                                                     <select
                                                         className="w-full rounded-md border-gray-300 text-sm shadow-sm"
                                                         value={lead.stage_id}
+                                                        disabled={lead.status === 'won'}
                                                         onChange={(e) =>
                                                             moveLead({
                                                                 leadId: lead.id,
@@ -266,6 +279,7 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
                                                     <select
                                                         className="w-full rounded-md border-gray-300 text-sm shadow-sm"
                                                         value={lead.pipeline_id}
+                                                        disabled={lead.status === 'won'}
                                                         onChange={(e) => moveLeadToOtherPipeline(lead.id, e.target.value)}
                                                     >
                                                         {(pipelines ?? []).map((p) => (

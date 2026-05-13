@@ -61,20 +61,42 @@ class ConvertLeadJob implements ShouldQueue
             }
 
             $missing = [];
-            if (! $lead->first_name) {
-                $missing[] = 'first_name';
-            }
-            if (! $lead->last_name) {
-                $missing[] = 'last_name';
-            }
-            if (! $lead->email || ! filter_var($lead->email, FILTER_VALIDATE_EMAIL)) {
-                $missing[] = 'email';
-            }
-            if (! $lead->identity_doc) {
-                $missing[] = 'identity_doc';
-            }
-            if ($missing !== []) {
-                throw new \RuntimeException('Faltan datos obligatorios: '.implode(', ', $missing));
+            if ($lead->student_id) {
+                $linked = Student::query()->find($lead->student_id);
+                if (! $linked) {
+                    throw new \RuntimeException('El estudiante vinculado no existe.');
+                }
+                if (! $linked->first_name) {
+                    $missing[] = 'first_name';
+                }
+                if (! $linked->last_name) {
+                    $missing[] = 'last_name';
+                }
+                if (! $linked->email || ! filter_var($linked->email, FILTER_VALIDATE_EMAIL)) {
+                    $missing[] = 'email';
+                }
+                if (! $linked->identity_doc) {
+                    $missing[] = 'identity_doc';
+                }
+                if ($missing !== []) {
+                    throw new \RuntimeException('Faltan datos obligatorios: '.implode(', ', $missing));
+                }
+            } else {
+                if (! $lead->first_name) {
+                    $missing[] = 'first_name';
+                }
+                if (! $lead->last_name) {
+                    $missing[] = 'last_name';
+                }
+                if (! $lead->email || ! filter_var($lead->email, FILTER_VALIDATE_EMAIL)) {
+                    $missing[] = 'email';
+                }
+                if (! $lead->identity_doc) {
+                    $missing[] = 'identity_doc';
+                }
+                if ($missing !== []) {
+                    throw new \RuntimeException('Faltan datos obligatorios: '.implode(', ', $missing));
+                }
             }
 
             $course = LmsCourse::query()->findOrFail($lead->course_id);

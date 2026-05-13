@@ -23,7 +23,13 @@ class LeadController extends Controller
     public function index(): Response
     {
         $leads = Lead::query()
-            ->with(['pipeline:id,name', 'stage:id,name', 'course:id,fullname', 'cohort:id,name'])
+            ->with([
+                'pipeline:id,name',
+                'stage:id,name',
+                'course:id,fullname',
+                'cohort:id,name',
+                'student:id,first_name,last_name,email,phone,identity_doc',
+            ])
             ->orderByDesc('updated_at')
             ->paginate(25)
             ->withQueryString();

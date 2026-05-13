@@ -37,11 +37,11 @@ export default function Index({ leads }) {
                                         <tr key={lead.id}>
                                             <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
                                                 <Link className="hover:underline" href={route('crm.leads.show', lead.id)}>
-                                                    {(lead.first_name || lead.last_name)
-                                                        ? `${lead.first_name ?? ''} ${lead.last_name ?? ''}`.trim()
-                                                        : lead.email ?? `#${lead.id}`}
+                                                    {(lead.student?.first_name || lead.student?.last_name || lead.first_name || lead.last_name)
+                                                        ? `${lead.student?.first_name ?? lead.first_name ?? ''} ${lead.student?.last_name ?? lead.last_name ?? ''}`.trim()
+                                                        : lead.student?.email ?? lead.email ?? `#${lead.id}`}
                                                 </Link>
-                                                <div className="text-xs text-gray-600">{lead.email ?? '—'}</div>
+                                                <div className="text-xs text-gray-600">{lead.student?.email ?? lead.email ?? '—'}</div>
                                             </td>
                                             <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">{lead.pipeline?.name ?? '—'}</td>
                                             <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">{lead.stage?.name ?? '—'}</td>
