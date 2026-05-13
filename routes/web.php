@@ -4,6 +4,8 @@ use App\Http\Controllers\BackofficeController;
 use App\Http\Controllers\Crm\KanbanController;
 use App\Http\Controllers\Crm\LeadController;
 use App\Http\Controllers\Crm\LeadMoveController;
+use App\Http\Controllers\Crm\LeadNoteController;
+use App\Http\Controllers\Crm\StudentSearchController;
 use App\Http\Controllers\Crm\PipelineController;
 use App\Http\Controllers\Crm\PipelineStageController;
 use App\Http\Controllers\ProfileController;
@@ -39,6 +41,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
         Route::get('/leads/crear', [LeadController::class, 'create'])->name('leads.create');
         Route::post('/leads', [LeadController::class, 'store'])->name('leads.store');
+        Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show');
+        Route::put('/leads/{lead}', [LeadController::class, 'update'])->name('leads.update');
+        Route::post('/leads/{lead}/notes', [LeadNoteController::class, 'store'])->name('leads.notes.store');
+
+        Route::get('/students/search', StudentSearchController::class)->name('students.search');
     });
 
     Route::prefix('academico')->name('academics.')->group(function () {

@@ -34,7 +34,11 @@ export default function Index({ leads }) {
                                     {(leads?.data ?? []).map((lead) => (
                                         <tr key={lead.id}>
                                             <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                                                {(lead.first_name || lead.last_name) ? `${lead.first_name ?? ''} ${lead.last_name ?? ''}`.trim() : lead.email ?? `#${lead.id}`}
+                                                <Link className="hover:underline" href={route('crm.leads.show', lead.id)}>
+                                                    {(lead.first_name || lead.last_name)
+                                                        ? `${lead.first_name ?? ''} ${lead.last_name ?? ''}`.trim()
+                                                        : lead.email ?? `#${lead.id}`}
+                                                </Link>
                                                 <div className="text-xs text-gray-600">{lead.email ?? '—'}</div>
                                             </td>
                                             <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">{lead.pipeline?.name ?? '—'}</td>
@@ -53,4 +57,3 @@ export default function Index({ leads }) {
         </AuthenticatedLayout>
     );
 }
-

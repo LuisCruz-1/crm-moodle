@@ -88,6 +88,26 @@ export default function Index({ pipelines }) {
         );
     };
 
+    const onStageDragStart = (e, stageId) => {
+        e.dataTransfer.setData('text/plain', String(stageId));
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
+    const onStageDragOver = (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    };
+
+    const onStageDrop = (e, pipelineId, stages, toStageId) => {
+        e.preventDefault();
+        const fromStageId = Number(e.dataTransfer.getData('text/plain'));
+        if (!fromStageId) return;
+        const fromIndex = stages.findIndex((s) => s.id === fromStageId);
+        const toIndex = stages.findIndex((s) => s.id === toStageId);
+        if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return;
+        reorderStages(pipelineId, stages, fromIndex, toIndex);
+    };
+
     return (
         <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">CRM · Pipelines</h2>}>
             <Head title="CRM · Pipelines" />
@@ -167,7 +187,14 @@ export default function Index({ pipelines }) {
                                     <div className="mb-4 text-sm font-medium text-gray-700">Etapas</div>
                                     <div className="space-y-2">
                                         {(pipeline.stages ?? []).map((stage, idx) => (
-                                            <div key={stage.id} className="flex flex-col gap-2 rounded-md border p-3 md:flex-row md:items-center">
+                                            <div
+                                                key={stage.id}
+                                                className="flex flex-col gap-2 rounded-md border p-3 md:flex-row md:items-center"
+                                                draggable
+                                                onDragStart={(e) => onStageDragStart(e, stage.id)}
+                                                onDragOver={onStageDragOver}
+                                                onDrop={(e) => onStageDrop(e, pipeline.id, pipeline.stages, stage.id)}
+                                            >
                                                 <div className="flex flex-1 flex-col gap-2 md:flex-row md:items-center">
                                                     <TextInput
                                                         className="block w-full md:max-w-md"
@@ -269,4 +296,3 @@ export default function Index({ pipelines }) {
         </AuthenticatedLayout>
     );
 }
-

@@ -24,9 +24,28 @@ class LeadStageHistory extends Model
         return $this->belongsTo(Lead::class);
     }
 
+    public function fromPipeline(): BelongsTo
+    {
+        return $this->belongsTo(Pipeline::class, 'from_pipeline_id');
+    }
+
+    public function toPipeline(): BelongsTo
+    {
+        return $this->belongsTo(Pipeline::class, 'to_pipeline_id');
+    }
+
+    public function fromStage(): BelongsTo
+    {
+        return $this->belongsTo(PipelineStage::class, 'from_stage_id');
+    }
+
+    public function toStage(): BelongsTo
+    {
+        return $this->belongsTo(PipelineStage::class, 'to_stage_id');
+    }
+
     public function movedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'moved_by');
     }
 }
-
