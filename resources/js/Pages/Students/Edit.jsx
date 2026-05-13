@@ -14,9 +14,22 @@ export default function Edit({ student }) {
         phone: student.phone ?? '',
     });
 
+    const { data: pwdData, setData: setPwdData, put: putPwd, processing: pwdProcessing, errors: pwdErrors, reset: resetPwd } = useForm({
+        password: '',
+        update_moodle: true,
+    });
+
     const submit = (e) => {
         e.preventDefault();
         put(route('students.update', student.id));
+    };
+
+    const submitPassword = (e) => {
+        e.preventDefault();
+        putPwd(route('students.update_password', student.id), {
+            preserveScroll: true,
+            onSuccess: () => resetPwd(),
+        });
     };
 
     return (
@@ -64,6 +77,45 @@ export default function Edit({ student }) {
                                 <Link href={route('students.show', student.id)} className="text-sm text-gray-600 hover:text-gray-900">
                                     Cancelar
                                 </Link>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div className="mt-6 overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">
+                        <h3 className="text-lg font-medium text-gray-900 mb-4">Gestionar Contraseña (Portal y Moodle)</h3>
+                        <p className="text-sm text-gray-600 mb-6">
+                            Asigna una nueva contraseña al estudiante. Esta será usada para acceder al Portal del Alumno. 
+                            Si marcas la opción, también se actualizará su contraseña en el Aula Virtual (Moodle).
+                        </p>
+                        
+                        <form onSubmit={submitPassword} className="space-y-6">
+                            <div>
+                                <InputLabel value="Nueva Contraseña" />
+                                <TextInput 
+                                    className="mt-1 block w-full" 
+                                    type="text" 
+                                    value={pwdData.password} 
+                                    onChange={(e) => setPwdData('password', e.target.value)} 
+                                    required 
+                                />
+                                <InputError message={pwdErrors.password} className="mt-2" />
+                            </div>
+
+                            <div className="block mt-4">
+                                <label className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        name="update_moodle"
+                                        checked={pwdData.update_moodle}
+                                        onChange={(e) => setPwdData('update_moodle', e.target.checked)}
+                                        className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                    />
+                                    <span className="ml-2 text-sm text-gray-600">Actualizar también en Moodle (Aula Virtual)</span>
+                                </label>
+                            </div>
+
+                            <div className="flex items-center gap-4">
+                                <PrimaryButton disabled={pwdProcessing}>Actualizar Contraseña</PrimaryButton>
                             </div>
                         </form>
                     </div>

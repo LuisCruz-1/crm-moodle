@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;     
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Student extends Model
+class Student extends Authenticatable
 {
     use HasFactory;
     use SoftDeletes;
@@ -18,6 +18,12 @@ class Student extends Model
         'email',
         'identity_doc',
         'phone',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 
     public function lmsUser()
@@ -38,6 +44,11 @@ class Student extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function paymentSubmissions()
+    {
+        return $this->hasMany(PaymentSubmission::class);
     }
 
     public function timelineEvents()

@@ -112,6 +112,28 @@ class StudentController extends Controller
         return redirect()->route('students.show', $student->id)->with('success', 'Estudiante actualizado.');
     }
 
+    public function updatePassword(Request $request, Student $student, \App\Integrations\Moodle\MoodleProvisioningService $moodle): RedirectResponse
+    {
+        $data = $request->validate([
+            'password' => ['required', 'string', 'min:8'],
+            'update_moodle' => ['boolean'],
+        ]);
+
+        $student->update([
+            'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
+        ]);
+
+        if ($request->boolean('update_moodle') && $student->lms_user_id) {
+            try {
+                $moodle->updateUserPassword($student->email, $data['password']);
+            } catch (\Throwable $e) {
+                return back()->with('error', 'Contraseña actualizada en el portal, pero falló en Moodle: ' . $e->getMessage());
+            }
+        }
+
+        return back()->with('success', 'Contraseña del estudiante actualizada correctamente.');
+    }
+
     public function destroy(Student $student): RedirectResponse
     {
         // Regla de Negocio Estricta: Si tiene pagos aprobados o facturación, bloquear eliminación

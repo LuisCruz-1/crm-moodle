@@ -82,6 +82,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{student}', [StudentController::class, 'show'])->name('show');
         Route::get('/{student}/editar', [StudentController::class, 'edit'])->name('edit');
         Route::put('/{student}', [StudentController::class, 'update'])->name('update');
+        Route::put('/{student}/password', [StudentController::class, 'updatePassword'])->name('update_password');
         Route::delete('/{student}', [StudentController::class, 'destroy'])->name('destroy');
         Route::post('/{student}/matricular', [StudentEnrollmentController::class, 'store'])->name('enrollments.store');
     });

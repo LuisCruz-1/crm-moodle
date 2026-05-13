@@ -95,6 +95,30 @@ class MoodleProvisioningService
         );
     }
 
+    public function updateUserPassword(string $email, string $newPassword): void
+    {
+        $client = $this->client();
+
+        $existing = $client->call('core_user_get_users_by_field', [
+            'field' => 'email',
+            'values[0]' => $email,
+        ]);
+
+        if (is_array($existing) && isset($existing[0]) && is_array($existing[0])) {
+            $moodleId = (int) ($existing[0]['id'] ?? 0);
+            
+            if ($moodleId) {
+                $client->call('core_user_update_users', [
+                    'users[0][id]' => $moodleId,
+                    'users[0][password]' => $newPassword,
+                ]);
+                return;
+            }
+        }
+
+        throw new \RuntimeException('El usuario no existe en Moodle.');
+    }
+
     public function enrolUserInCourse(int $moodleUserId, int $moodleCourseId): void
     {
         $roleId = $this->settings->getInt('moodle.student_role_id', 5);
