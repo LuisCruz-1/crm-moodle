@@ -5,7 +5,9 @@ namespace App\Jobs;
 use App\Integrations\Moodle\MoodleClient;
 use App\Models\LmsCohort;
 use App\Models\LmsCourse;
+use App\Models\LmsUser;
 use App\Models\Setting;
+use App\Models\Student;
 use App\Support\SettingsStore;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -162,17 +164,26 @@ class SyncMoodleJob implements ShouldQueue
                         }
                         $email = (string) ($u['email'] ?? '');
 
-                        DB::table('lms_users')->updateOrInsert(
+                        $lmsUser = LmsUser::query()->updateOrCreate(
                             ['moodle_id' => $userId],
                             [
                                 'email' => $email !== '' ? $email : null,
                                 'username' => (string) ($u['username'] ?? ''),
                                 'first_name' => (string) ($u['firstname'] ?? ''),
                                 'last_name' => (string) ($u['lastname'] ?? ''),
-                                'updated_at' => now(),
-                                'created_at' => now(),
                             ]
                         );
+
+                        if ($lmsUser->email) {
+                            Student::query()->updateOrCreate(
+                                ['email' => $lmsUser->email],
+                                [
+                                    'lms_user_id' => $lmsUser->id,
+                                    'first_name' => $lmsUser->first_name ?: '—',
+                                    'last_name' => $lmsUser->last_name ?: '—',
+                                ]
+                            );
+                        }
                         $stats['users']++;
                     }
                 }

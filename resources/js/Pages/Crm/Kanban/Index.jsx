@@ -32,6 +32,7 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
         pipeline_id: null,
         stage_id: null,
         preview: null,
+        use_student: false,
         errors: {},
         data: {
             first_name: '',
@@ -63,7 +64,23 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
 
         try {
             const res = await axios.post(route('crm.leads.conversion.preview', lead.id), { pipeline_id: pipelineId, stage_id: stageId });
-            setConversion((s) => ({ ...s, loading: false, preview: res.data, errors: {} }));
+            const student = res.data?.student ?? null;
+            setConversion((s) => ({
+                ...s,
+                loading: false,
+                preview: res.data,
+                use_student: !!student,
+                data: student
+                    ? {
+                          first_name: student.first_name ?? '',
+                          last_name: student.last_name ?? '',
+                          email: student.email ?? '',
+                          phone: student.phone ?? '',
+                          identity_doc: student.identity_doc ?? '',
+                      }
+                    : s.data,
+                errors: {},
+            }));
         } catch (e) {
             const message = e?.response?.data?.message ?? 'No se pudo preparar la conversión.';
             setConversion((s) => ({ ...s, loading: false, preview: null, errors: { general: message } }));
@@ -302,6 +319,7 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
                                     <InputLabel value="Nombres" />
                                     <TextInput
                                         className="mt-1 block w-full"
+                                        disabled={conversion.use_student && (conversion.preview?.student?.first_name ?? '') !== ''}
                                         value={conversion.data.first_name}
                                         onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, first_name: e.target.value } }))}
                                     />
@@ -311,6 +329,7 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
                                     <InputLabel value="Apellidos" />
                                     <TextInput
                                         className="mt-1 block w-full"
+                                        disabled={conversion.use_student && (conversion.preview?.student?.last_name ?? '') !== ''}
                                         value={conversion.data.last_name}
                                         onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, last_name: e.target.value } }))}
                                     />
@@ -320,6 +339,7 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
                                     <InputLabel value="Email" />
                                     <TextInput
                                         className="mt-1 block w-full"
+                                        disabled={conversion.use_student && (conversion.preview?.student?.email ?? '') !== ''}
                                         value={conversion.data.email}
                                         onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, email: e.target.value } }))}
                                     />
@@ -329,6 +349,7 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
                                     <InputLabel value="Teléfono (opcional)" />
                                     <TextInput
                                         className="mt-1 block w-full"
+                                        disabled={conversion.use_student && (conversion.preview?.student?.phone ?? '') !== ''}
                                         value={conversion.data.phone}
                                         onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, phone: e.target.value } }))}
                                     />
@@ -338,6 +359,7 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
                                     <InputLabel value="Documento (DNI)" />
                                     <TextInput
                                         className="mt-1 block w-full"
+                                        disabled={conversion.use_student && (conversion.preview?.student?.identity_doc ?? '') !== ''}
                                         value={conversion.data.identity_doc}
                                         onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, identity_doc: e.target.value } }))}
                                     />
@@ -350,7 +372,8 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
                                 Cancelar
                             </button>
                             <PrimaryButton
-                                onClick={() =>
+                                onClick={() => {
+                                    setConversion((s) => ({ ...s, loading: true }));
                                     router.post(
                                         route('crm.leads.conversion.confirm', conversion.lead.id),
                                         {
@@ -362,12 +385,13 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
                                             preserveScroll: true,
                                             onError: (errors) => setConversion((s) => ({ ...s, errors })),
                                             onSuccess: () => closeConversion(),
+                                            onFinish: () => setConversion((s) => ({ ...s, loading: false })),
                                         },
-                                    )
-                                }
+                                    );
+                                }}
                                 disabled={conversion.loading}
                             >
-                                Confirmar
+                                {conversion.loading ? 'Procesando…' : 'Confirmar'}
                             </PrimaryButton>
                         </div>
                     </div>

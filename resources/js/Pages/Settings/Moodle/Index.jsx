@@ -77,11 +77,13 @@ export default function Index({ config, sync }) {
                                 Para funciones del CRM (acciones futuras desde esta plataforma) agrega también:
                                 <div className="mt-2 rounded-md border bg-gray-50 p-3 font-mono text-xs">
                                     core_user_get_users_by_field<br />
+                                    core_user_create_users<br />
                                     enrol_manual_enrol_users<br />
                                     enrol_manual_unenrol_users<br />
                                     core_group_add_group_members<br />
                                     core_group_delete_group_members
                                 </div>
+                                Si al crear usuarios te sale “accessexception”, revisa que el usuario del token tenga permisos/capabilities para crear usuarios.
                             </div>
 
                             <div className="font-medium">3) Generar el token</div>

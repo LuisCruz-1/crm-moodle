@@ -93,11 +93,14 @@ class ConvertLeadJob implements ShouldQueue
                 throw new \RuntimeException('El curso no tiene una plantilla de pagos activa.');
             }
 
+            $linkedStudent = (bool) $lead->student_id;
             $student = $lead->student_id ? Student::query()->find($lead->student_id) : null;
             if (! $student) {
-                $student = Student::query()
-                    ->where('email', $lead->email)
-                    ->first();
+                if ($lead->email) {
+                    $student = Student::query()
+                        ->where('email', $lead->email)
+                        ->first();
+                }
             }
 
             if (! $student) {
@@ -109,12 +112,18 @@ class ConvertLeadJob implements ShouldQueue
                     'phone' => $lead->phone,
                 ]);
             } else {
-                $student->update([
-                    'first_name' => $lead->first_name,
-                    'last_name' => $lead->last_name,
-                    'identity_doc' => $lead->identity_doc,
-                    'phone' => $lead->phone,
-                ]);
+                if ($linkedStudent) {
+                    if (! $student->first_name || ! $student->last_name || ! $student->email || ! $student->identity_doc) {
+                        throw new \RuntimeException('El estudiante vinculado no tiene datos obligatorios (nombres, apellidos, email, DNI).');
+                    }
+                } else {
+                    $student->update([
+                        'first_name' => $lead->first_name ?: $student->first_name,
+                        'last_name' => $lead->last_name ?: $student->last_name,
+                        'identity_doc' => $lead->identity_doc ?: $student->identity_doc,
+                        'phone' => $lead->phone ?: $student->phone,
+                    ]);
+                }
             }
 
             $lead->student_id = $student->id;
@@ -191,4 +200,3 @@ class ConvertLeadJob implements ShouldQueue
         }
     }
 }
-

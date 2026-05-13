@@ -27,7 +27,16 @@ class MoodleClient
             ->asForm()
             ->post($url, $payload);
 
+        $body = (string) $response->body();
         $data = $response->json();
+
+        if ($data === null && trim($body) === '') {
+            return [];
+        }
+
+        if ($data === true) {
+            return [];
+        }
 
         if (! is_array($data)) {
             throw new \RuntimeException("Moodle {$function}: Respuesta inválida.");

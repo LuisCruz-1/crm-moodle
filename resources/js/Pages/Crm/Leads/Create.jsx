@@ -6,7 +6,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import CrmSubnav from '@/Components/CrmSubnav';
 import { Head, router, useForm } from '@inertiajs/react';
 import axios from 'axios';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Create({ pipelines, courses, cohorts, salesUsers }) {
     const form = useForm({
@@ -25,7 +25,8 @@ export default function Create({ pipelines, courses, cohorts, salesUsers }) {
 
     const [studentQuery, setStudentQuery] = useState('');
     const [studentResults, setStudentResults] = useState([]);
-    const selectedStudent = useMemo(() => studentResults.find((s) => String(s.id) === String(form.data.student_id)), [studentResults, form.data.student_id]);
+    const [linkedStudent, setLinkedStudent] = useState(null);
+    const usingStudent = !!form.data.student_id && !!linkedStudent;
 
     useEffect(() => {
         const q = studentQuery.trim();
@@ -96,6 +97,12 @@ export default function Create({ pipelines, courses, cohorts, salesUsers }) {
                                             className="rounded-md border px-3 py-2 text-left text-sm"
                                             onClick={() => {
                                                 form.setData('student_id', s.id);
+                                                form.setData('first_name', s.first_name ?? '');
+                                                form.setData('last_name', s.last_name ?? '');
+                                                form.setData('email', s.email ?? '');
+                                                form.setData('phone', s.phone ?? '');
+                                                form.setData('identity_doc', s.identity_doc ?? '');
+                                                setLinkedStudent(s);
                                                 setStudentQuery(`${s.first_name ?? ''} ${s.last_name ?? ''}`.trim() || s.email || String(s.id));
                                                 setStudentResults([]);
                                             }}
@@ -107,12 +114,13 @@ export default function Create({ pipelines, courses, cohorts, salesUsers }) {
                                 </div>
                                 {form.data.student_id ? (
                                     <div className="mt-2 text-sm text-gray-700">
-                                        Seleccionado: {selectedStudent?.email ?? `ID ${form.data.student_id}`}
+                                        Seleccionado: {linkedStudent?.email ?? `ID ${form.data.student_id}`}
                                         <button
                                             type="button"
                                             className="ml-3 rounded-md border px-2 py-1 text-xs"
                                             onClick={() => {
                                                 form.setData('student_id', '');
+                                                setLinkedStudent(null);
                                                 setStudentQuery('');
                                                 setStudentResults([]);
                                             }}
@@ -200,12 +208,12 @@ export default function Create({ pipelines, courses, cohorts, salesUsers }) {
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div>
                                     <InputLabel value="Nombre" />
-                                    <TextInput className="mt-1 block w-full" value={form.data.first_name} onChange={(e) => form.setData('first_name', e.target.value)} />
+                                    <TextInput className="mt-1 block w-full" disabled={usingStudent} value={form.data.first_name} onChange={(e) => form.setData('first_name', e.target.value)} />
                                     <InputError className="mt-2" message={form.errors.first_name} />
                                 </div>
                                 <div>
                                     <InputLabel value="Apellidos" />
-                                    <TextInput className="mt-1 block w-full" value={form.data.last_name} onChange={(e) => form.setData('last_name', e.target.value)} />
+                                    <TextInput className="mt-1 block w-full" disabled={usingStudent} value={form.data.last_name} onChange={(e) => form.setData('last_name', e.target.value)} />
                                     <InputError className="mt-2" message={form.errors.last_name} />
                                 </div>
                             </div>
@@ -213,19 +221,19 @@ export default function Create({ pipelines, courses, cohorts, salesUsers }) {
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div>
                                     <InputLabel value="Email" />
-                                    <TextInput className="mt-1 block w-full" value={form.data.email} onChange={(e) => form.setData('email', e.target.value)} />
+                                    <TextInput className="mt-1 block w-full" disabled={usingStudent} value={form.data.email} onChange={(e) => form.setData('email', e.target.value)} />
                                     <InputError className="mt-2" message={form.errors.email} />
                                 </div>
                                 <div>
                                     <InputLabel value="Teléfono" />
-                                    <TextInput className="mt-1 block w-full" value={form.data.phone} onChange={(e) => form.setData('phone', e.target.value)} />
+                                    <TextInput className="mt-1 block w-full" disabled={usingStudent} value={form.data.phone} onChange={(e) => form.setData('phone', e.target.value)} />
                                     <InputError className="mt-2" message={form.errors.phone} />
                                 </div>
                             </div>
 
                             <div>
                                 <InputLabel value="DNI/Identificación" />
-                                <TextInput className="mt-1 block w-full" value={form.data.identity_doc} onChange={(e) => form.setData('identity_doc', e.target.value)} />
+                                <TextInput className="mt-1 block w-full" disabled={usingStudent} value={form.data.identity_doc} onChange={(e) => form.setData('identity_doc', e.target.value)} />
                                 <InputError className="mt-2" message={form.errors.identity_doc} />
                             </div>
 

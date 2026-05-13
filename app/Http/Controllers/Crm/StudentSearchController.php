@@ -26,9 +26,8 @@ class StudentSearchController extends Controller
             })
             ->orderBy('id', 'desc')
             ->limit(10)
-            ->get(['id', 'first_name', 'last_name', 'email', 'identity_doc']);
+            ->get(['id', 'first_name', 'last_name', 'email', 'identity_doc', 'phone']);
 
         return response()->json(['data' => $students]);
     }
 }
-

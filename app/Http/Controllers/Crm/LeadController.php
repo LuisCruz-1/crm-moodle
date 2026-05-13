@@ -10,6 +10,7 @@ use App\Models\LmsCohort;
 use App\Models\LmsCourse;
 use App\Models\Pipeline;
 use App\Models\PipelineStage;
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -85,6 +86,14 @@ class LeadController extends Controller
             abort_unless((int) $cohort->course_id === (int) $data['course_id'], 422);
         }
 
+        if (! empty($data['student_id'])) {
+            $data['first_name'] = null;
+            $data['last_name'] = null;
+            $data['email'] = null;
+            $data['phone'] = null;
+            $data['identity_doc'] = null;
+        }
+
         Lead::create([
             ...$data,
             'status' => 'open',
@@ -100,7 +109,7 @@ class LeadController extends Controller
             'stage',
             'course',
             'cohort',
-            'student:id,first_name,last_name,email,identity_doc',
+            'student:id,first_name,last_name,email,phone,identity_doc',
             'assignedTo:id,name,email',
             'notes.createdBy:id,name',
             'histories' => fn ($q) => $q->with([
@@ -168,20 +177,49 @@ class LeadController extends Controller
             ->where('pipeline_id', $pipeline->id)
             ->findOrFail($data['stage_id']);
 
+        if (! empty($data['student_id'])) {
+            $data['first_name'] = null;
+            $data['last_name'] = null;
+            $data['email'] = null;
+            $data['phone'] = null;
+            $data['identity_doc'] = null;
+        }
+
         if ($toStage->is_won) {
+            $student = null;
+            if (! empty($data['student_id'])) {
+                $student = Student::query()->find($data['student_id']);
+            }
+
             $missing = [];
-            if (empty($data['first_name'])) {
-                $missing['first_name'] = 'Nombres es obligatorio para convertir.';
+            if ($student) {
+                if (! $student->first_name) {
+                    $missing['general'] = 'El estudiante vinculado no tiene nombres.';
+                }
+                if (! $student->last_name) {
+                    $missing['general'] = 'El estudiante vinculado no tiene apellidos.';
+                }
+                if (! $student->email) {
+                    $missing['general'] = 'El estudiante vinculado no tiene email.';
+                }
+                if (! $student->identity_doc) {
+                    $missing['general'] = 'El estudiante vinculado no tiene documento (DNI).';
+                }
+            } else {
+                if (empty($lead->first_name) && empty($request->input('first_name'))) {
+                    $missing['first_name'] = 'Nombres es obligatorio para convertir.';
+                }
+                if (empty($lead->last_name) && empty($request->input('last_name'))) {
+                    $missing['last_name'] = 'Apellidos es obligatorio para convertir.';
+                }
+                if (empty($lead->email) && empty($request->input('email'))) {
+                    $missing['email'] = 'Email es obligatorio para convertir.';
+                }
+                if (empty($lead->identity_doc) && empty($request->input('identity_doc'))) {
+                    $missing['identity_doc'] = 'Documento (DNI) es obligatorio para convertir.';
+                }
             }
-            if (empty($data['last_name'])) {
-                $missing['last_name'] = 'Apellidos es obligatorio para convertir.';
-            }
-            if (empty($data['email'])) {
-                $missing['email'] = 'Email es obligatorio para convertir.';
-            }
-            if (empty($data['identity_doc'])) {
-                $missing['identity_doc'] = 'Documento (DNI) es obligatorio para convertir.';
-            }
+
             if ($missing !== []) {
                 throw ValidationException::withMessages($missing);
             }
