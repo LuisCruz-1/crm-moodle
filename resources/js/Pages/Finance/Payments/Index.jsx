@@ -3,7 +3,7 @@ import { Head, router } from '@inertiajs/react';
 import TextInput from '@/Components/TextInput';
 import FinanceSubnav from '@/Components/FinanceSubnav';
 
-export default function Index({ payments, filters, paymentMethods }) {
+export default function Index({ payments, filters, paymentMethods, courses }) {
     return (
         <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Historial de Pagos</h2>}>
             <Head title="Historial de Pagos" />
@@ -15,7 +15,7 @@ export default function Index({ payments, filters, paymentMethods }) {
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-4 border-b flex flex-col md:flex-row md:justify-between items-center gap-4">
                             <select 
-                                className="rounded-md border-gray-300 shadow-sm"
+                                className="rounded-md border-gray-300 shadow-sm md:w-1/4"
                                 value={filters?.payment_method_id ?? ''}
                                 onChange={e => router.get(route('finance.payments.index'), { ...filters, payment_method_id: e.target.value }, { preserveState: true })}
                             >
@@ -24,10 +24,21 @@ export default function Index({ payments, filters, paymentMethods }) {
                                     <option key={pm.id} value={pm.id}>{pm.name}</option>
                                 ))}
                             </select>
+
+                            <select 
+                                className="rounded-md border-gray-300 shadow-sm md:w-1/4"
+                                value={filters?.course_id ?? ''}
+                                onChange={e => router.get(route('finance.payments.index'), { ...filters, course_id: e.target.value }, { preserveState: true })}
+                            >
+                                <option value="">Todos los cursos</option>
+                                {(courses ?? []).map(c => (
+                                    <option key={c.id} value={c.id}>{c.fullname}</option>
+                                ))}
+                            </select>
                             
                             <TextInput 
-                                className="w-full md:w-1/3" 
-                                placeholder="Buscar por estudiante, DNI, email o curso..." 
+                                className="w-full md:w-2/4" 
+                                placeholder="Buscar por estudiante, DNI o email..." 
                                 value={filters?.search ?? ''}
                                 onChange={e => router.get(route('finance.payments.index'), { ...filters, search: e.target.value }, { preserveState: true, replace: true })}
                             />

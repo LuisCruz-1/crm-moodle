@@ -32,15 +32,22 @@ class InstallmentController extends Controller
                     ->orWhere('last_name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('identity_doc', 'like', "%{$search}%");
-            })->orWhereHas('enrollment.course', function ($q) use ($search) {
-                $q->where('fullname', 'like', "%{$search}%");
             });
         }
 
+        if ($courseId = $request->input('course_id')) {
+            $query->whereHas('enrollment', function ($q) use ($courseId) {
+                $q->where('course_id', $courseId);
+            });
+        }
+
+        $courses = \App\Models\LmsCourse::query()->orderBy('fullname')->get(['id', 'fullname']);
+
         return Inertia::render('Finance/Installments/Index', [
             'installments' => $query->paginate(30)->withQueryString(),
-            'filters' => $request->only(['status', 'search']),
+            'filters' => $request->only(['status', 'search', 'course_id']),
             'paymentMethods' => \App\Models\PaymentMethod::where('is_active', true)->get(),
+            'courses' => $courses,
         ]);
     }
 

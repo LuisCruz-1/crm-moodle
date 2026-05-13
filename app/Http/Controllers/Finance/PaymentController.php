@@ -26,8 +26,12 @@ class PaymentController extends Controller
                     ->orWhere('last_name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('identity_doc', 'like', "%{$search}%");
-            })->orWhereHas('installment.enrollment.course', function ($q) use ($search) {
-                $q->where('fullname', 'like', "%{$search}%");
+            });
+        }
+
+        if ($courseId = $request->input('course_id')) {
+            $query->whereHas('installment.enrollment', function ($q) use ($courseId) {
+                $q->where('course_id', $courseId);
             });
         }
 
@@ -35,10 +39,13 @@ class PaymentController extends Controller
             $query->where('payment_method_id', $method);
         }
 
+        $courses = \App\Models\LmsCourse::query()->orderBy('fullname')->get(['id', 'fullname']);
+
         return Inertia::render('Finance/Payments/Index', [
             'payments' => $query->paginate(30)->withQueryString(),
-            'filters' => $request->only(['search', 'payment_method_id']),
+            'filters' => $request->only(['search', 'payment_method_id', 'course_id']),
             'paymentMethods' => \App\Models\PaymentMethod::where('is_active', true)->get(),
+            'courses' => $courses,
         ]);
     }
 }
