@@ -21,7 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        $middleware->redirectUsersTo(function (\Illuminate\Http\Request $request) {
+            if (auth('student')->check()) {
+                return route('portal.dashboard');
+            }
+            return route('dashboard');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

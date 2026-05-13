@@ -9,17 +9,10 @@ use App\Http\Controllers\Portal\MoodleLoginController;
 
 Route::prefix('portal')->name('portal.')->group(function () {
     Route::get('/', function () {
-        return redirect()->route('portal.login');
-    });
-
-    Route::middleware('guest:student')->group(function () {
-        Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
-        Route::post('login', [AuthController::class, 'login']);
+        return redirect()->route('login');
     });
 
     Route::middleware('auth:student')->group(function () {
-        Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-        
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
         
         Route::get('estado-cuenta', [InstallmentController::class, 'index'])->name('installments.index');

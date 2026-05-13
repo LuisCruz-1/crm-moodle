@@ -46,7 +46,7 @@ export default function PortalLayout({ header, children }) {
                                     {auth?.user?.first_name} {auth?.user?.last_name}
                                 </div>
                                 <Link
-                                    href={route('portal.logout')}
+                                    href={route('logout')}
                                     method="post"
                                     as="button"
                                     className="text-indigo-200 hover:text-white text-sm"
