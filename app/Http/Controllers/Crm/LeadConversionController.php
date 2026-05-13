@@ -11,6 +11,7 @@ use App\Models\PipelineStage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class LeadConversionController extends Controller
 {
@@ -105,7 +106,9 @@ class LeadConversionController extends Controller
             : null;
 
         if (! $activePlan) {
-            abort(422, 'El curso no tiene una plantilla de pagos activa.');
+            throw ValidationException::withMessages([
+                'general' => 'El curso no tiene una plantilla de pagos activa.',
+            ]);
         }
 
         $lead->update([
@@ -122,8 +125,21 @@ class LeadConversionController extends Controller
             ]),
         ]);
 
-        ConvertLeadJob::dispatch($lead->id, $toPipeline->id, $toStage->id, $request->user()?->id)
-            ->onConnection('redis');
+        try {
+            ConvertLeadJob::dispatchSync($lead->id, $toPipeline->id, $toStage->id, $request->user()?->id);
+        } catch (\Throwable $e) {
+            $lead->refresh();
+            $lead->update([
+                'status' => 'conversion_failed',
+                'metadata' => array_merge($lead->metadata ?? [], [
+                    'conversion_error' => mb_substr($e->getMessage(), 0, 500),
+                ]),
+            ]);
+
+            throw ValidationException::withMessages([
+                'general' => mb_substr($e->getMessage(), 0, 2000),
+            ]);
+        }
 
         return back();
     }
