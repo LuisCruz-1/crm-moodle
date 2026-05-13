@@ -8,6 +8,10 @@ use App\Http\Controllers\Portal\PaymentSubmissionController;
 use App\Http\Controllers\Portal\MoodleLoginController;
 
 Route::prefix('portal')->name('portal.')->group(function () {
+    Route::get('/', function () {
+        return redirect()->route('portal.login');
+    });
+
     Route::middleware('guest:student')->group(function () {
         Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
         Route::post('login', [AuthController::class, 'login']);
