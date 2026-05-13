@@ -2,6 +2,46 @@ services:
   app:
     image: ghcr.io/luiscruz-1/crm-moodle:latest
     restart: always
+    environment:
+      - APP_NAME
+      - APP_ENV
+      - APP_KEY
+      - APP_DEBUG
+      - APP_URL
+      - APP_LOCALE
+      - APP_FALLBACK_LOCALE
+      - LOG_CHANNEL
+      - LOG_LEVEL
+      - DB_CONNECTION
+      - DB_HOST
+      - DB_PORT
+      - DB_DATABASE
+      - DB_USERNAME
+      - DB_PASSWORD
+      - REDIS_HOST
+      - REDIS_PORT
+      - REDIS_PASSWORD
+      - REDIS_CLIENT
+      - QUEUE_CONNECTION
+      - CACHE_STORE
+      - SESSION_DRIVER
+      - SESSION_LIFETIME
+      - SESSION_DOMAIN
+      - CRM_HOST
+      - PORTAL_HOST
+      - TRAEFIK_ENTRYPOINT
+      - TRAEFIK_CERTRESOLVER
+      - MAIL_MAILER
+      - MAIL_SCHEME
+      - MAIL_HOST
+      - MAIL_PORT
+      - MAIL_USERNAME
+      - MAIL_PASSWORD
+      - MAIL_FROM_ADDRESS
+      - MAIL_FROM_NAME
+      - SUPERADMIN_NAME
+      - SUPERADMIN_EMAIL
+      - SUPERADMIN_PASSWORD
     volumes:
       - storage_data:/var/www/html/storage
       - storage_private:/var/www/html/storage/app/private
@@ -22,7 +62,25 @@ services:
   worker:
     image: ghcr.io/luiscruz-1/crm-moodle:latest
     restart: always
-    command: sh -lc "php -r '$h=getenv(\"DB_HOST\"); $db=getenv(\"DB_DATABASE\"); $u=getenv(\"DB_USERNAME\"); $p=getenv(\"DB_PASSWORD\"); $port=getenv(\"DB_PORT\") ?: 3306; for ($i=0;$i<60;$i++){ try{ new PDO(\"mysql:host=$h;port=$port;dbname=$db\",$u,$p); exit(0);} catch (Throwable $e){ sleep(2);} } fwrite(STDERR,\"db_not_ready\\n\"); exit(1);' && php artisan queue:work redis --sleep=3 --tries=3 --timeout=90"
+    command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=90
+    environment:
+      - APP_ENV
+      - APP_KEY
+      - APP_DEBUG
+      - LOG_CHANNEL
+      - LOG_LEVEL
+      - DB_CONNECTION
+      - DB_HOST
+      - DB_PORT
+      - DB_DATABASE
+      - DB_USERNAME
+      - DB_PASSWORD
+      - REDIS_HOST
+      - REDIS_PORT
+      - REDIS_PASSWORD
+      - REDIS_CLIENT
+      - QUEUE_CONNECTION
+      - CACHE_STORE
     depends_on:
       - db
       - redis
@@ -32,7 +90,25 @@ services:
   scheduler:
     image: ghcr.io/luiscruz-1/crm-moodle:latest
     restart: always
-    command: sh -lc "php -r '$h=getenv(\"DB_HOST\"); $db=getenv(\"DB_DATABASE\"); $u=getenv(\"DB_USERNAME\"); $p=getenv(\"DB_PASSWORD\"); $port=getenv(\"DB_PORT\") ?: 3306; for ($i=0;$i<60;$i++){ try{ new PDO(\"mysql:host=$h;port=$port;dbname=$db\",$u,$p); exit(0);} catch (Throwable $e){ sleep(2);} } fwrite(STDERR,\"db_not_ready\\n\"); exit(1);' && php artisan schedule:work"
+    command: php artisan schedule:work
+    environment:
+      - APP_ENV
+      - APP_KEY
+      - APP_DEBUG
+      - LOG_CHANNEL
+      - LOG_LEVEL
+      - DB_CONNECTION
+      - DB_HOST
+      - DB_PORT
+      - DB_DATABASE
+      - DB_USERNAME
+      - DB_PASSWORD
+      - REDIS_HOST
+      - REDIS_PORT
+      - REDIS_PASSWORD
+      - REDIS_CLIENT
+      - QUEUE_CONNECTION
+      - CACHE_STORE
     depends_on:
       - db
       - redis
@@ -42,6 +118,11 @@ services:
   db:
     image: mysql:8.0
     restart: always
+    environment:
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_ROOT_PASSWORD
     volumes:
       - db_data:/var/lib/mysql
     networks:

@@ -21,6 +21,10 @@ Crea los registros DNS tipo **A** apuntando a la IP de tu VPS:
 3) En la pestaña **Environment**, pega el contenido de [.env.example](file:///d:/Proyectos/crm-academico/.env.example).
 4) Despliega el proyecto.
 
+Nota:
+- `docker-compose.yml` solo “pasa” variables a los contenedores (no repite valores).
+- Los valores reales se definen únicamente en la pestaña **Environment**.
+
 ### 3) Inicialización (automática)
 Al iniciar el contenedor `app`, el sistema ejecuta automáticamente:
 - Generación de `APP_KEY` si no está configurada (se guarda en volumen persistente)

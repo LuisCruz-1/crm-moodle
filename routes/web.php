@@ -1,6 +1,11 @@
 <?php
 
 use App\Http\Controllers\BackofficeController;
+use App\Http\Controllers\Crm\KanbanController;
+use App\Http\Controllers\Crm\LeadController;
+use App\Http\Controllers\Crm\LeadMoveController;
+use App\Http\Controllers\Crm\PipelineController;
+use App\Http\Controllers\Crm\PipelineStageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -9,7 +14,6 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
@@ -19,9 +23,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [BackofficeController::class, 'dashboard'])->name('dashboard');
 
     Route::prefix('crm')->name('crm.')->group(function () {
-        Route::get('/pipelines', [BackofficeController::class, 'crmPipelines'])->name('pipelines.index');
-        Route::get('/kanban', [BackofficeController::class, 'crmKanban'])->name('kanban.index');
-        Route::get('/leads', [BackofficeController::class, 'crmLeads'])->name('leads.index');
+        Route::get('/pipelines', [PipelineController::class, 'index'])->name('pipelines.index');
+        Route::post('/pipelines', [PipelineController::class, 'store'])->name('pipelines.store');
+        Route::put('/pipelines/{pipeline}', [PipelineController::class, 'update'])->name('pipelines.update');
+        Route::delete('/pipelines/{pipeline}', [PipelineController::class, 'destroy'])->name('pipelines.destroy');
+
+        Route::post('/pipelines/{pipeline}/stages', [PipelineStageController::class, 'store'])->name('pipelines.stages.store');
+        Route::put('/pipelines/{pipeline}/stages/{stage}', [PipelineStageController::class, 'update'])->name('pipelines.stages.update');
+        Route::delete('/pipelines/{pipeline}/stages/{stage}', [PipelineStageController::class, 'destroy'])->name('pipelines.stages.destroy');
+        Route::post('/pipelines/{pipeline}/stages/reorder', [PipelineStageController::class, 'reorder'])->name('pipelines.stages.reorder');
+
+        Route::get('/kanban', [KanbanController::class, 'index'])->name('kanban.index');
+        Route::post('/leads/{lead}/move', LeadMoveController::class)->name('leads.move');
+
+        Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
+        Route::get('/leads/crear', [LeadController::class, 'create'])->name('leads.create');
+        Route::post('/leads', [LeadController::class, 'store'])->name('leads.store');
     });
 
     Route::prefix('academico')->name('academics.')->group(function () {
