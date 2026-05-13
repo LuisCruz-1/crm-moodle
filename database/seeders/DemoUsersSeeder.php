@@ -5,12 +5,16 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class DemoUsersSeeder extends Seeder
 {
     public function run(): void
     {
         $password = (string) env('DEMO_USERS_PASSWORD', 'ChangeMe123!');
+
+        Role::firstOrCreate(['name' => 'ventas']);
+        Role::firstOrCreate(['name' => 'finanzas']);
 
         $ventas1 = User::query()->firstOrCreate(
             ['email' => 'ventas1@demo.local'],
@@ -43,4 +47,3 @@ class DemoUsersSeeder extends Seeder
         $finanzas->syncRoles(['finanzas']);
     }
 }
-

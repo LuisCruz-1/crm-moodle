@@ -62,7 +62,7 @@ services:
   worker:
     image: ghcr.io/luiscruz-1/crm-moodle:latest
     restart: always
-    command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=90
+    command: ["/start.sh", "worker"]
     environment:
       - APP_ENV
       - APP_KEY
@@ -81,6 +81,9 @@ services:
       - REDIS_CLIENT
       - QUEUE_CONNECTION
       - CACHE_STORE
+    volumes:
+      - storage_data:/var/www/html/storage
+      - storage_private:/var/www/html/storage/app/private
     depends_on:
       - db
       - redis
@@ -90,7 +93,7 @@ services:
   scheduler:
     image: ghcr.io/luiscruz-1/crm-moodle:latest
     restart: always
-    command: php artisan schedule:work
+    command: ["/start.sh", "scheduler"]
     environment:
       - APP_ENV
       - APP_KEY
@@ -109,6 +112,9 @@ services:
       - REDIS_CLIENT
       - QUEUE_CONNECTION
       - CACHE_STORE
+    volumes:
+      - storage_data:/var/www/html/storage
+      - storage_private:/var/www/html/storage/app/private
     depends_on:
       - db
       - redis

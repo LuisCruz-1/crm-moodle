@@ -37,6 +37,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                     CRM
                                 </NavLink>
                                 <NavLink
+                                    href={route('academics.courses.index')}
+                                    active={route().current('academics.*')}
+                                >
+                                    Académico
+                                </NavLink>
+                                <NavLink
                                     href={route('students.index')}
                                     active={route().current('students.*')}
                                 >
@@ -163,6 +169,12 @@ export default function AuthenticatedLayout({ header, children }) {
                             active={route().current('crm.kanban.index')}
                         >
                             CRM
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('academics.courses.index')}
+                            active={route().current('academics.*')}
+                        >
+                            Académico
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             href={route('students.index')}

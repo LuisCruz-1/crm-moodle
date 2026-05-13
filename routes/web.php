@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\BackofficeController;
+use App\Http\Controllers\Academics\CourseController as AcademicsCourseController;
+use App\Http\Controllers\Academics\SyncController as AcademicsSyncController;
 use App\Http\Controllers\Crm\KanbanController;
 use App\Http\Controllers\Crm\LeadController;
 use App\Http\Controllers\Crm\LeadMoveController;
@@ -9,6 +11,7 @@ use App\Http\Controllers\Crm\StudentSearchController;
 use App\Http\Controllers\Crm\PipelineController;
 use App\Http\Controllers\Crm\PipelineStageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Settings\MoodleController as SettingsMoodleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -49,8 +52,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('academico')->name('academics.')->group(function () {
-        Route::get('/cursos', [BackofficeController::class, 'academicsCourses'])->name('courses.index');
-        Route::get('/sync', [BackofficeController::class, 'academicsSync'])->name('sync.index');
+        Route::get('/cursos', [AcademicsCourseController::class, 'index'])->name('courses.index');
+        Route::get('/sync', [AcademicsSyncController::class, 'index'])->name('sync.index');
+        Route::post('/sync', [AcademicsSyncController::class, 'run'])->name('sync.run');
     });
 
     Route::prefix('estudiantes')->name('students.')->group(function () {
@@ -72,7 +76,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('configuracion')->name('settings.')->group(function () {
-        Route::get('/moodle', [BackofficeController::class, 'settingsMoodle'])->name('moodle.index');
+        Route::get('/moodle', [SettingsMoodleController::class, 'index'])->name('moodle.index');
+        Route::put('/moodle', [SettingsMoodleController::class, 'update'])->name('moodle.update');
         Route::get('/parametros', [BackofficeController::class, 'settingsParameters'])->name('parameters.index');
     });
 
