@@ -20,6 +20,7 @@ class SyncController extends Controller
                 'step' => $settings->getString('moodle.last_sync_step'),
                 'error' => $settings->getString('moodle.last_sync_error'),
                 'stats' => $settings->getString('moodle.last_sync_stats'),
+                'requested_at' => $settings->getString('moodle.last_sync_requested_at'),
                 'started_at' => $settings->getString('moodle.last_sync_started_at'),
                 'finished_at' => $settings->getString('moodle.last_sync_finished_at'),
                 'last_sync_at' => $settings->getString('moodle.last_sync_at'),
@@ -31,9 +32,17 @@ class SyncController extends Controller
     {
         $settings->setString('moodle', 'moodle.last_sync_status', 'queued', $request->user()?->id, false);
         $settings->setString('moodle', 'moodle.last_sync_error', null, $request->user()?->id, false);
+        $settings->setString('moodle', 'moodle.last_sync_step', null, $request->user()?->id, false);
+        $settings->setString('moodle', 'moodle.last_sync_stats', null, $request->user()?->id, false);
         $settings->setString('moodle', 'moodle.last_sync_requested_at', now()->toISOString(), $request->user()?->id, false);
 
-        SyncMoodleJob::dispatch();
+        try {
+            SyncMoodleJob::dispatchSync();
+        } catch (\Throwable $e) {
+            $settings->setString('moodle', 'moodle.last_sync_status', 'failed', $request->user()?->id, false);
+            $settings->setString('moodle', 'moodle.last_sync_error', mb_substr($e->getMessage(), 0, 2000), $request->user()?->id, false);
+            $settings->setString('moodle', 'moodle.last_sync_finished_at', now()->toISOString(), $request->user()?->id, false);
+        }
 
         return back();
     }

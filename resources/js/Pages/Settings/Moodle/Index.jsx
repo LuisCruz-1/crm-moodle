@@ -41,6 +41,7 @@ export default function Index({ config, sync }) {
                         <div className="mt-3 grid grid-cols-1 gap-2 text-sm text-gray-800">
                             <div>Estado: {sync?.status ?? '—'}</div>
                             <div>Paso: {sync?.step ?? '—'}</div>
+                            <div>Solicitado: {sync?.requested_at ?? '—'}</div>
                             <div>Última: {sync?.last_sync_at ?? '—'}</div>
                             <div>Inicio: {sync?.started_at ?? '—'}</div>
                             <div>Fin: {sync?.finished_at ?? '—'}</div>
@@ -71,6 +72,14 @@ export default function Index({ config, sync }) {
                                     core_course_get_courses<br />
                                     core_group_get_course_groups<br />
                                     core_enrol_get_enrolled_users
+                                </div>
+                                Para funciones del CRM (acciones futuras desde esta plataforma) agrega también:
+                                <div className="mt-2 rounded-md border bg-gray-50 p-3 font-mono text-xs">
+                                    core_user_get_users_by_field<br />
+                                    enrol_manual_enrol_users<br />
+                                    enrol_manual_unenrol_users<br />
+                                    core_group_add_group_members<br />
+                                    core_group_delete_group_members
                                 </div>
                             </div>
 

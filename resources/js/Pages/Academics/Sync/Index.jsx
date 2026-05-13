@@ -30,6 +30,7 @@ export default function Index({ sync }) {
                         <div className="mt-4 grid gap-2 text-sm text-gray-800">
                             <div>Estado: {sync?.status ?? '—'}</div>
                             <div>Paso: {sync?.step ?? '—'}</div>
+                            <div>Solicitado: {sync?.requested_at ?? '—'}</div>
                             <div>Última: {sync?.last_sync_at ?? '—'}</div>
                             <div>Inicio: {sync?.started_at ?? '—'}</div>
                             <div>Fin: {sync?.finished_at ?? '—'}</div>

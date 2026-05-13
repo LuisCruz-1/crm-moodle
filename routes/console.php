@@ -19,7 +19,24 @@ Schedule::call(function (SettingsStore $settings) {
     }
 
     $status = (string) $settings->getString('moodle.last_sync_status', '');
-    if (in_array($status, ['queued', 'running'], true)) {
+    if ($status === 'running') {
+        return;
+    }
+
+    if ($status === 'queued') {
+        $requestedAtRaw = (string) $settings->getString('moodle.last_sync_requested_at', '');
+        if ($requestedAtRaw !== '') {
+            try {
+                $requestedAt = Carbon::parse($requestedAtRaw);
+                if ($requestedAt->diffInMinutes(now()) >= 15) {
+                    $settings->setString('moodle', 'moodle.last_sync_status', 'failed');
+                    $settings->setString('moodle', 'moodle.last_sync_error', 'La sincronización quedó en cola por más de 15 minutos. Verifica que el worker de colas esté corriendo.');
+                    $settings->setString('moodle', 'moodle.last_sync_finished_at', now()->toISOString());
+                }
+            } catch (\Throwable $e) {
+            }
+        }
+
         return;
     }
 
@@ -31,7 +48,8 @@ Schedule::call(function (SettingsStore $settings) {
     $last = $settings->getString('moodle.last_sync_at');
     if (! $last) {
         $settings->setString('moodle', 'moodle.last_sync_status', 'queued');
-        SyncMoodleJob::dispatch();
+        $settings->setString('moodle', 'moodle.last_sync_requested_at', now()->toISOString());
+        SyncMoodleJob::dispatch()->onConnection('redis');
         return;
     }
 
@@ -43,12 +61,14 @@ Schedule::call(function (SettingsStore $settings) {
 
     if (! $lastAt) {
         $settings->setString('moodle', 'moodle.last_sync_status', 'queued');
-        SyncMoodleJob::dispatch();
+        $settings->setString('moodle', 'moodle.last_sync_requested_at', now()->toISOString());
+        SyncMoodleJob::dispatch()->onConnection('redis');
         return;
     }
 
     if ($lastAt->diffInHours(now()) >= $intervalHours) {
         $settings->setString('moodle', 'moodle.last_sync_status', 'queued');
-        SyncMoodleJob::dispatch();
+        $settings->setString('moodle', 'moodle.last_sync_requested_at', now()->toISOString());
+        SyncMoodleJob::dispatch()->onConnection('redis');
     }
 })->everyMinute()->name('moodle:sync-auto');
