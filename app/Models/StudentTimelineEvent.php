@@ -27,5 +27,10 @@ class StudentTimelineEvent extends Model
     {
         return $this->belongsTo(Student::class);
     }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }
 

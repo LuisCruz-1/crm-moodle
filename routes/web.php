@@ -21,6 +21,7 @@ use Inertia\Inertia;
 
 use App\Http\Controllers\Students\StudentEnrollmentController;
 use App\Http\Controllers\Finance\PaymentSubmissionController;
+use App\Http\Controllers\Finance\InstallmentController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
