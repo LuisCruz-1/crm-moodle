@@ -78,6 +78,7 @@ export default function Index({ config, sync }) {
                                 <div className="mt-2 rounded-md border bg-gray-50 p-3 font-mono text-xs">
                                     core_user_get_users_by_field<br />
                                     core_user_create_users<br />
+                                    core_user_update_users<br />
                                     enrol_manual_enrol_users<br />
                                     enrol_manual_unenrol_users<br />
                                     core_group_add_group_members<br />
