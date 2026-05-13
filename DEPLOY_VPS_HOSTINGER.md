@@ -18,22 +18,23 @@ Crea los registros DNS tipo **A** apuntando a la IP de tu VPS:
 ### 2) Docker Manager (Hostinger)
 1) Crea un **Compose Project**.
 2) En la pestaña **YAML**, pega el contenido de [docker-compose.yml](file:///d:/Proyectos/crm-academico/docker-compose.yml).
-3) En la pestaña **Environment**, pega el contenido de [.env.example](file:///d:/Proyectos/crm-academico/.env.example) y ajusta solo lo necesario.
+3) En la pestaña **Environment**, pega el contenido de [.env.example](file:///d:/Proyectos/crm-academico/.env.example).
 4) Despliega el proyecto.
 
-### 3) Inicialización (una sola vez)
-Entra a la consola del contenedor `app` y ejecuta:
-```bash
-php artisan key:generate
-php artisan migrate --force
-php artisan db:seed --force
-```
+### 3) Inicialización (automática)
+Al iniciar el contenedor `app`, el sistema ejecuta automáticamente:
+- Generación de `APP_KEY` si no está configurada (se guarda en volumen persistente)
+- `php artisan migrate --force`
+- `php artisan db:seed --force` solo si no existen usuarios (primer arranque)
+
+### 3.1) Usuario admin (creación automática)
+El seeder crea automáticamente un usuario superadmin con estas variables:
+- `SUPERADMIN_EMAIL`
+- `SUPERADMIN_PASSWORD`
+- `SUPERADMIN_NAME`
 
 ### 4) Actualizaciones
-Cuando publiques una nueva versión de la imagen (tag `latest`), en Docker Manager haz un redeploy/pull para que descargue la versión nueva y luego ejecuta:
-```bash
-php artisan migrate --force
-```
+Cuando publiques una nueva versión de la imagen (tag `latest`), en Docker Manager haz un redeploy/pull para que descargue la versión nueva. El contenedor `app` ejecuta `migrate --force` automáticamente al iniciar.
 
 ### 5) Si ves `404 page not found` en el dominio
 Ese `404 page not found` normalmente viene de Traefik (no de Laravel) y significa que el router no está matcheando el Host o Traefik no “ve” tu contenedor.

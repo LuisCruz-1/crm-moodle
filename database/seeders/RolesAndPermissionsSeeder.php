@@ -39,11 +39,15 @@ class RolesAndPermissionsSeeder extends Seeder
         $ventas->syncPermissions(['crm.view', 'crm.manage', 'students.view']);
         $finanzas->syncPermissions(['finance.view', 'finance.manage', 'students.view']);
 
+        $email = (string) env('SUPERADMIN_EMAIL', 'admin@local.test');
+        $name = (string) env('SUPERADMIN_NAME', 'Super Admin');
+        $password = (string) env('SUPERADMIN_PASSWORD', 'password');
+
         $user = User::query()->firstOrCreate(
-            ['email' => 'admin@local.test'],
+            ['email' => $email],
             [
-                'name' => 'Super Admin',
-                'password' => Hash::make('password'),
+                'name' => $name,
+                'password' => Hash::make($password),
             ]
         );
 
