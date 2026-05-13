@@ -57,11 +57,8 @@ class BackofficeController extends Controller
             ->limit(5)
             ->get();
 
-        // Leads by Source
-        $leadsBySource = DB::table('leads')
-            ->select(DB::raw('COALESCE(source, "Desconocido") as name'), DB::raw('count(id) as value'))
-            ->groupBy('source')
-            ->get();
+        // Leads by Source (Not present in DB currently, returning empty for now to avoid crash)
+        $leadsBySource = [];
 
         // FINANCIAL METRICS
         $projectedThisMonth = Installment::whereBetween('due_date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])->sum('amount');

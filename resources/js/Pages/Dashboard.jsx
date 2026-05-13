@@ -84,8 +84,8 @@ export default function Dashboard({ metrics }) {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 lg:col-span-2">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                                 <h4 className="text-md font-medium text-gray-700 mb-4 text-center">Pipeline de Ventas (Leads Activos)</h4>
                                 <div className="h-64 w-full">
                                     <ResponsiveContainer>
