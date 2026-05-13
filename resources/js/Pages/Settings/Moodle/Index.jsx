@@ -20,6 +20,7 @@ export default function Index({ config, sync }) {
         sso_client_secret: '',
         sync_interval_hours: config?.sync_interval_hours ?? 6,
         sync_courses_limit: config?.sync_courses_limit ?? 0,
+        student_role_id: config?.student_role_id ?? 5,
     });
 
     const submit = (e) => {
@@ -162,6 +163,17 @@ export default function Index({ config, sync }) {
                                         onChange={(e) => form.setData('sync_courses_limit', e.target.value)}
                                     />
                                     <InputError className="mt-2" message={form.errors.sync_courses_limit} />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div>
+                                    <InputLabel value="Role ID estudiante (Moodle)" />
+                                    <TextInput
+                                        className="mt-1 block w-full"
+                                        value={form.data.student_role_id}
+                                        onChange={(e) => form.setData('student_role_id', e.target.value)}
+                                    />
+                                    <InputError className="mt-2" message={form.errors.student_role_id} />
                                 </div>
                             </div>
 

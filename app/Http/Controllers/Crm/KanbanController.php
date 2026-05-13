@@ -32,7 +32,7 @@ class KanbanController extends Controller
         $leadsQuery = $pipeline
             ? Lead::query()
                 ->where('pipeline_id', $pipeline->id)
-                ->where('status', 'open')
+                ->whereIn('status', ['open', 'converting', 'conversion_failed'])
             : Lead::query()->whereRaw('1=0');
 
         if ($courseId) {
@@ -54,10 +54,13 @@ class KanbanController extends Controller
                     'stage_id',
                     'assigned_to_user_id',
                     'course_id',
+                    'cohort_id',
+                    'student_id',
                     'first_name',
                     'last_name',
                     'email',
                     'phone',
+                    'identity_doc',
                     'status',
                     'updated_at',
                 ])

@@ -1,6 +1,6 @@
 import AcademicsSubnav from '@/Components/AcademicsSubnav';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 
 export default function Index({ courses }) {
     return (
@@ -24,7 +24,11 @@ export default function Index({ courses }) {
                                 <tbody className="divide-y divide-gray-200 bg-white">
                                     {(courses?.data ?? []).map((c) => (
                                         <tr key={c.id}>
-                                            <td className="px-6 py-4 text-sm text-gray-900">{c.fullname}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-900">
+                                                <Link className="hover:underline" href={route('academics.courses.show', c.id)}>
+                                                    {c.fullname}
+                                                </Link>
+                                            </td>
                                             <td className="px-6 py-4 text-sm text-gray-700">{c.shortname}</td>
                                             <td className="px-6 py-4 text-sm text-gray-700">{c.cohorts_count}</td>
                                             <td className="px-6 py-4 text-sm text-gray-700">{c.visible ? 'Sí' : 'No'}</td>

@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\BackofficeController;
 use App\Http\Controllers\Academics\CourseController as AcademicsCourseController;
+use App\Http\Controllers\Academics\CoursePaymentPlanController as AcademicsCoursePaymentPlanController;
 use App\Http\Controllers\Academics\SyncController as AcademicsSyncController;
 use App\Http\Controllers\Crm\KanbanController;
 use App\Http\Controllers\Crm\LeadController;
+use App\Http\Controllers\Crm\LeadConversionController;
 use App\Http\Controllers\Crm\LeadMoveController;
 use App\Http\Controllers\Crm\LeadNoteController;
 use App\Http\Controllers\Crm\StudentSearchController;
@@ -40,6 +42,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/kanban', [KanbanController::class, 'index'])->name('kanban.index');
         Route::post('/leads/{lead}/move', LeadMoveController::class)->name('leads.move');
+        Route::post('/leads/{lead}/conversion/preview', [LeadConversionController::class, 'preview'])->name('leads.conversion.preview');
+        Route::post('/leads/{lead}/conversion/confirm', [LeadConversionController::class, 'confirm'])->name('leads.conversion.confirm');
 
         Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
         Route::get('/leads/crear', [LeadController::class, 'create'])->name('leads.create');
@@ -53,6 +57,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('academico')->name('academics.')->group(function () {
         Route::get('/cursos', [AcademicsCourseController::class, 'index'])->name('courses.index');
+        Route::get('/cursos/{course}', [AcademicsCourseController::class, 'show'])->name('courses.show');
+
+        Route::post('/cursos/{course}/planes', [AcademicsCoursePaymentPlanController::class, 'store'])->name('courses.plans.store');
+        Route::post('/cursos/{course}/planes/{plan}/items', [AcademicsCoursePaymentPlanController::class, 'storeItem'])->name('courses.plans.items.store');
+        Route::put('/cursos/{course}/planes/{plan}/items/{item}', [AcademicsCoursePaymentPlanController::class, 'updateItem'])->name('courses.plans.items.update');
+        Route::delete('/cursos/{course}/planes/{plan}/items/{item}', [AcademicsCoursePaymentPlanController::class, 'destroyItem'])->name('courses.plans.items.destroy');
+        Route::post('/cursos/{course}/planes/{plan}/items/reorder', [AcademicsCoursePaymentPlanController::class, 'reorderItems'])->name('courses.plans.items.reorder');
+
         Route::get('/sync', [AcademicsSyncController::class, 'index'])->name('sync.index');
         Route::post('/sync', [AcademicsSyncController::class, 'run'])->name('sync.run');
     });

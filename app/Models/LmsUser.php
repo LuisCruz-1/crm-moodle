@@ -4,19 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Student extends Model
+class LmsUser extends Model
 {
     use HasFactory;
-    use SoftDeletes;
+
+    protected $table = 'lms_users';
 
     protected $fillable = [
-        'lms_user_id',
+        'moodle_id',
+        'email',
+        'username',
         'first_name',
         'last_name',
-        'email',
-        'identity_doc',
-        'phone',
+    ];
+
+    protected $casts = [
+        'moodle_id' => 'integer',
     ];
 }
+

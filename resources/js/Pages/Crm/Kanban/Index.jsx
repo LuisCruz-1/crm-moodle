@@ -1,6 +1,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import CrmSubnav from '@/Components/CrmSubnav';
 import { Head, Link, router } from '@inertiajs/react';
+import axios from 'axios';
+import InputError from '@/Components/InputError';
+import InputLabel from '@/Components/InputLabel';
+import PrimaryButton from '@/Components/PrimaryButton';
+import TextInput from '@/Components/TextInput';
+import { useMemo, useState } from 'react';
 
 function leadTitle(lead) {
     const first = lead.first_name ?? '';
@@ -11,12 +17,62 @@ function leadTitle(lead) {
 
 export default function Index({ pipelines, selectedPipeline, leads, filters, courses, salesUsers }) {
     const stages = selectedPipeline?.stages ?? [];
+    const coursesById = useMemo(() => Object.fromEntries((courses ?? []).map((c) => [String(c.id), c])), [courses]);
 
     const grouped = Object.fromEntries(stages.map((s) => [s.id, []]));
     (leads ?? []).forEach((l) => {
         if (!grouped[l.stage_id]) grouped[l.stage_id] = [];
         grouped[l.stage_id].push(l);
     });
+
+    const [conversion, setConversion] = useState({
+        open: false,
+        loading: false,
+        lead: null,
+        pipeline_id: null,
+        stage_id: null,
+        preview: null,
+        errors: {},
+        data: {
+            first_name: '',
+            last_name: '',
+            email: '',
+            phone: '',
+            identity_doc: '',
+        },
+    });
+
+    const openConversion = async ({ lead, pipelineId, stageId }) => {
+        setConversion((s) => ({
+            ...s,
+            open: true,
+            loading: true,
+            lead,
+            pipeline_id: pipelineId,
+            stage_id: stageId,
+            preview: null,
+            errors: {},
+            data: {
+                first_name: lead.first_name ?? '',
+                last_name: lead.last_name ?? '',
+                email: lead.email ?? '',
+                phone: lead.phone ?? '',
+                identity_doc: lead.identity_doc ?? '',
+            },
+        }));
+
+        try {
+            const res = await axios.post(route('crm.leads.conversion.preview', lead.id), { pipeline_id: pipelineId, stage_id: stageId });
+            setConversion((s) => ({ ...s, loading: false, preview: res.data, errors: {} }));
+        } catch (e) {
+            const message = e?.response?.data?.message ?? 'No se pudo preparar la conversión.';
+            setConversion((s) => ({ ...s, loading: false, preview: null, errors: { general: message } }));
+        }
+    };
+
+    const closeConversion = () => {
+        setConversion((s) => ({ ...s, open: false, loading: false, lead: null, preview: null, errors: {} }));
+    };
 
     const applyFilters = (next) => {
         router.get(
@@ -31,6 +87,13 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
     };
 
     const moveLead = ({ leadId, pipelineId, stageId }) => {
+        const stage = stages.find((s) => String(s.id) === String(stageId));
+        const lead = (leads ?? []).find((l) => String(l.id) === String(leadId));
+        if (stage?.is_won && lead) {
+            openConversion({ lead, pipelineId, stageId });
+            return;
+        }
+
         router.post(route('crm.leads.move', leadId), { pipeline_id: pipelineId, stage_id: stageId }, { preserveScroll: true });
     };
 
@@ -155,6 +218,14 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
                                                 </div>
                                                 <div className="mt-1 text-xs text-gray-600">{lead.email ?? '—'}</div>
                                                 <div className="mt-1 text-xs text-gray-600">{lead.phone ?? '—'}</div>
+                                                <div className="mt-2">
+                                                    {lead.status === 'converting' ? (
+                                                        <span className="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-800">Convirtiendo</span>
+                                                    ) : null}
+                                                    {lead.status === 'conversion_failed' ? (
+                                                        <span className="rounded bg-red-100 px-2 py-1 text-xs text-red-700">Error</span>
+                                                    ) : null}
+                                                </div>
 
                                                 <div className="mt-3 grid grid-cols-1 gap-2">
                                                     <select
@@ -199,6 +270,109 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
                     )}
                 </div>
             </div>
+
+            {conversion.open ? (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+                    <div className="w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-lg">
+                        <div className="border-b border-gray-100 p-4">
+                            <div className="text-sm font-semibold text-gray-900">Confirmar conversión</div>
+                            <div className="mt-1 text-sm text-gray-600">
+                                Lead: {leadTitle(conversion.lead)} · Curso: {coursesById?.[String(conversion.lead?.course_id)]?.fullname ?? '—'}
+                            </div>
+                        </div>
+                        <div className="space-y-4 p-4">
+                            {conversion.loading ? <div className="text-sm text-gray-700">Preparando…</div> : null}
+                            {conversion.errors?.general ? <div className="text-sm text-red-600">{conversion.errors.general}</div> : null}
+
+                            {conversion.preview?.plan ? (
+                                <div className="rounded-md border bg-gray-50 p-3 text-sm text-gray-800">
+                                    Al confirmar, se matricula en <span className="font-medium">{conversion.preview.course?.fullname ?? '—'}</span>
+                                    {conversion.preview.cohort ? (
+                                        <>
+                                            {' '}
+                                            - Cohorte <span className="font-medium">{conversion.preview.cohort.name}</span>
+                                        </>
+                                    ) : null}
+                                    , y se generará un plan de pagos por un total de <span className="font-medium">{conversion.preview.plan.total}</span>.
+                                </div>
+                            ) : null}
+
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div>
+                                    <InputLabel value="Nombres" />
+                                    <TextInput
+                                        className="mt-1 block w-full"
+                                        value={conversion.data.first_name}
+                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, first_name: e.target.value } }))}
+                                    />
+                                    <InputError className="mt-2" message={conversion.errors.first_name} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Apellidos" />
+                                    <TextInput
+                                        className="mt-1 block w-full"
+                                        value={conversion.data.last_name}
+                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, last_name: e.target.value } }))}
+                                    />
+                                    <InputError className="mt-2" message={conversion.errors.last_name} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Email" />
+                                    <TextInput
+                                        className="mt-1 block w-full"
+                                        value={conversion.data.email}
+                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, email: e.target.value } }))}
+                                    />
+                                    <InputError className="mt-2" message={conversion.errors.email} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Teléfono (opcional)" />
+                                    <TextInput
+                                        className="mt-1 block w-full"
+                                        value={conversion.data.phone}
+                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, phone: e.target.value } }))}
+                                    />
+                                    <InputError className="mt-2" message={conversion.errors.phone} />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <InputLabel value="Documento (DNI)" />
+                                    <TextInput
+                                        className="mt-1 block w-full"
+                                        value={conversion.data.identity_doc}
+                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, identity_doc: e.target.value } }))}
+                                    />
+                                    <InputError className="mt-2" message={conversion.errors.identity_doc} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-3 border-t border-gray-100 p-4">
+                            <button type="button" className="rounded-md border px-3 py-2 text-sm" onClick={closeConversion}>
+                                Cancelar
+                            </button>
+                            <PrimaryButton
+                                onClick={() =>
+                                    router.post(
+                                        route('crm.leads.conversion.confirm', conversion.lead.id),
+                                        {
+                                            pipeline_id: conversion.pipeline_id,
+                                            stage_id: conversion.stage_id,
+                                            ...conversion.data,
+                                        },
+                                        {
+                                            preserveScroll: true,
+                                            onError: (errors) => setConversion((s) => ({ ...s, errors })),
+                                            onSuccess: () => closeConversion(),
+                                        },
+                                    )
+                                }
+                                disabled={conversion.loading}
+                            >
+                                Confirmar
+                            </PrimaryButton>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
         </AuthenticatedLayout>
     );
 }

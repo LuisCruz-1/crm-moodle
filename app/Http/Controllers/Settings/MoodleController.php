@@ -26,6 +26,7 @@ class MoodleController extends Controller
                 'has_sso_client_secret' => $hasClientSecret,
                 'sync_interval_hours' => $settings->getInt('moodle.sync_interval_hours', 6),
                 'sync_courses_limit' => $settings->getInt('moodle.sync_courses_limit', 0),
+                'student_role_id' => $settings->getInt('moodle.student_role_id', 5),
             ],
             'sync' => [
                 'status' => $settings->getString('moodle.last_sync_status'),
@@ -49,6 +50,7 @@ class MoodleController extends Controller
             'sso_client_secret' => ['nullable', 'string', 'max:2000'],
             'sync_interval_hours' => ['required', 'integer', 'min:1', 'max:168'],
             'sync_courses_limit' => ['required', 'integer', 'min:0', 'max:10000'],
+            'student_role_id' => ['required', 'integer', 'min:1', 'max:9999'],
         ]);
 
         $userId = $request->user()?->id;
@@ -56,6 +58,7 @@ class MoodleController extends Controller
         $settings->setString('moodle', 'moodle.url', $data['url'], $userId, false);
         $settings->setString('moodle', 'moodle.sync_interval_hours', (string) $data['sync_interval_hours'], $userId, false);
         $settings->setString('moodle', 'moodle.sync_courses_limit', (string) $data['sync_courses_limit'], $userId, false);
+        $settings->setString('moodle', 'moodle.student_role_id', (string) $data['student_role_id'], $userId, false);
 
         if (! empty($data['token'])) {
             $settings->setString('moodle', 'moodle.token', $data['token'], $userId, true);

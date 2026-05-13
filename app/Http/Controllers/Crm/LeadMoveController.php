@@ -23,6 +23,10 @@ class LeadMoveController extends Controller
             ->where('pipeline_id', $toPipeline->id)
             ->findOrFail($data['stage_id']);
 
+        if ($toStage->is_won) {
+            abort(409, 'ConversionGateRequired');
+        }
+
         $fromPipelineId = $lead->pipeline_id;
         $fromStageId = $lead->stage_id;
 
@@ -42,4 +46,3 @@ class LeadMoveController extends Controller
         return back();
     }
 }
-
