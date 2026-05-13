@@ -83,10 +83,15 @@ export default function Edit({ student }) {
 
                     <div className="mt-6 overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">
                         <h3 className="text-lg font-medium text-gray-900 mb-4">Gestionar Contraseña (Portal y Moodle)</h3>
-                        <p className="text-sm text-gray-600 mb-6">
+                        <p className="text-sm text-gray-600 mb-2">
                             Asigna una nueva contraseña al estudiante. Esta será usada para acceder al Portal del Alumno. 
                             Si marcas la opción, también se actualizará su contraseña en el Aula Virtual (Moodle).
                         </p>
+                        {student.lms_user && (
+                            <p className="text-sm text-indigo-600 font-medium mb-6 bg-indigo-50 p-3 rounded border border-indigo-100">
+                                ℹ️ Usuario de Moodle asignado: <strong>{student.lms_user.username}</strong>
+                            </p>
+                        )}
                         
                         <form onSubmit={submitPassword} className="space-y-6">
                             <div>

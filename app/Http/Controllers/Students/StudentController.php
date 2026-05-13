@@ -70,6 +70,7 @@ class StudentController extends Controller
     public function show(Student $student): Response
     {
         $student->load([
+            'lmsUser',
             'enrollments.course',
             'enrollments.cohort',
             'timelineEvents.createdBy:id,name',
@@ -92,6 +93,7 @@ class StudentController extends Controller
 
     public function edit(Student $student): Response
     {
+        $student->load('lmsUser');
         return Inertia::render('Students/Edit', [
             'student' => $student,
         ]);
