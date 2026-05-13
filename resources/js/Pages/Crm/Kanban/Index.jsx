@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import CrmSubnav from '@/Components/CrmSubnav';
 import { Head, Link, router } from '@inertiajs/react';
 
 function leadTitle(lead) {
@@ -63,6 +64,7 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl space-y-4 sm:px-6 lg:px-8">
+                    <CrmSubnav />
                     <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                             <div>

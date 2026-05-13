@@ -24,11 +24,15 @@ fwrite(STDERR, "db_not_ready\n"); exit(1);
 
 php artisan migrate --force
 
-php -r '
-$h=getenv("DB_HOST"); $db=getenv("DB_DATABASE"); $u=getenv("DB_USERNAME"); $p=getenv("DB_PASSWORD"); $port=getenv("DB_PORT") ?: 3306;
-try { $pdo=new PDO("mysql:host=$h;port=$port;dbname=$db", $u, $p); $count=(int)$pdo->query("select count(*) from users")->fetchColumn(); if ($count === 0) { exit(0); } exit(1); }
-catch (Throwable $e) { exit(1); }
-' && php artisan db:seed --force || true
+php artisan db:seed --class=Database\\Seeders\\RolesAndPermissionsSeeder --force || true
+php artisan db:seed --class=Database\\Seeders\\LmsSeeder --force || true
+php artisan db:seed --class=Database\\Seeders\\FinanceCatalogSeeder --force || true
+php artisan db:seed --class=Database\\Seeders\\EmailTemplatesSeeder --force || true
+php artisan db:seed --class=Database\\Seeders\\CrmSeeder --force || true
+
+if [ "${DEMO_USERS:-false}" = "true" ]; then
+    php artisan db:seed --class=Database\\Seeders\\DemoUsersSeeder --force || true
+fi
 
 php artisan config:clear || true
 php artisan route:clear || true
