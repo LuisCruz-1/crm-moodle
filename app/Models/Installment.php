@@ -53,5 +53,10 @@ class Installment extends Model
     {
         return $this->belongsTo(PaymentType::class, 'payment_type_id');
     }
+
+    public function payments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
 }
 
