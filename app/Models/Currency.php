@@ -14,10 +14,12 @@ class Currency extends Model
         'symbol',
         'name',
         'is_base',
+        'exchange_rate',
     ];
 
     protected $casts = [
         'is_base' => 'boolean',
+        'exchange_rate' => 'decimal:6',
     ];
 }
 

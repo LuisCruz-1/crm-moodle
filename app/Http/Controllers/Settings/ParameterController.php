@@ -64,11 +64,11 @@ class ParameterController extends Controller
             'code' => 'required|string|max:10',
             'symbol' => 'required|string|max:10',
             'exchange_rate' => 'required|numeric|min:0',
-            'is_default' => 'boolean',
+            'is_base' => 'boolean',
         ]);
 
-        if (!empty($data['is_default'])) {
-            Currency::query()->update(['is_default' => false]);
+        if (!empty($data['is_base'])) {
+            Currency::query()->update(['is_base' => false]);
         }
 
         Currency::create($data);
@@ -82,11 +82,11 @@ class ParameterController extends Controller
             'code' => 'required|string|max:10',
             'symbol' => 'required|string|max:10',
             'exchange_rate' => 'required|numeric|min:0',
-            'is_default' => 'boolean',
+            'is_base' => 'boolean',
         ]);
 
-        if (!empty($data['is_default']) && !$currency->is_default) {
-            Currency::query()->update(['is_default' => false]);
+        if (!empty($data['is_base']) && !$currency->is_base) {
+            Currency::query()->update(['is_base' => false]);
         }
 
         $currency->update($data);

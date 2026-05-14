@@ -16,7 +16,7 @@ export default function CurrenciesTable({ currencies }) {
         code: '',
         symbol: '',
         exchange_rate: 1,
-        is_default: false,
+        is_base: false,
     });
 
     const openCreateModal = () => {
@@ -33,7 +33,7 @@ export default function CurrenciesTable({ currencies }) {
             code: item.code,
             symbol: item.symbol,
             exchange_rate: item.exchange_rate,
-            is_default: item.is_default,
+            is_base: item.is_base,
         });
         clearErrors();
         setIsModalOpen(true);
@@ -95,7 +95,7 @@ export default function CurrenciesTable({ currencies }) {
                                 <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{item.symbol}</td>
                                 <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{item.exchange_rate}</td>
                                 <td className="whitespace-nowrap px-3 py-4 text-sm text-center">
-                                    {item.is_default ? (
+                                    {item.is_base ? (
                                         <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Predeterminada</span>
                                     ) : '-'}
                                 </td>
@@ -132,19 +132,24 @@ export default function CurrenciesTable({ currencies }) {
                         </div>
                         <div>
                             <InputLabel htmlFor="exchange_rate" value="Tasa de Cambio (respecto a la base)" />
-                            <TextInput id="exchange_rate" type="number" step="0.0001" className="mt-1 block w-full" value={data.exchange_rate} onChange={(e) => setData('exchange_rate', e.target.value)} required />
+                            <div className="flex flex-col gap-1">
+                                <TextInput id="exchange_rate" type="number" step="0.0001" className="mt-1 block w-full" value={data.exchange_rate} onChange={(e) => setData('exchange_rate', e.target.value)} required />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Ejemplo: Si tu moneda base (predeterminada) es USD y estás agregando EUR, y 1 USD equivale a 0.93 EUR, la tasa de cambio sería 0.93. Si esta es la moneda base, la tasa debe ser 1.
+                                </p>
+                            </div>
                             <InputError message={errors.exchange_rate} className="mt-2" />
                         </div>
                         <div className="flex items-center mt-4">
                             <input
-                                id="is_default"
+                                id="is_base"
                                 type="checkbox"
                                 className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                                checked={data.is_default}
-                                onChange={(e) => setData('is_default', e.target.checked)}
+                                checked={data.is_base}
+                                onChange={(e) => setData('is_base', e.target.checked)}
                             />
-                            <label htmlFor="is_default" className="ml-2 block text-sm text-gray-900">
-                                Establecer como moneda predeterminada
+                            <label htmlFor="is_base" className="ml-2 block text-sm text-gray-900">
+                                Establecer como moneda base/predeterminada
                             </label>
                         </div>
                     </div>
