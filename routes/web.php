@@ -85,6 +85,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{student}', [StudentController::class, 'show'])->name('show');
         Route::get('/{student}/editar', [StudentController::class, 'edit'])->name('edit');
         Route::put('/{student}', [StudentController::class, 'update'])->name('update');
+        Route::post('/{student}/toggle-suspension', [StudentController::class, 'toggleSuspension'])->name('toggle_suspension');
         Route::put('/{student}/password', [StudentController::class, 'updatePassword'])->name('update_password');
         Route::delete('/{student}', [StudentController::class, 'destroy'])->name('destroy');
         Route::post('/{student}/matricular', [StudentEnrollmentController::class, 'store'])->name('enrollments.store');
@@ -126,6 +127,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         Route::get('/catalogos', [\App\Http\Controllers\Settings\ParameterController::class, 'catalogs'])->name('catalogs.index');
         
+        Route::get('/crons', [\App\Http\Controllers\Settings\CronController::class, 'index'])->name('crons.index');
+        Route::put('/crons', [\App\Http\Controllers\Settings\CronController::class, 'update'])->name('crons.update');
+
         Route::post('/catalogos/metodos-pago', [\App\Http\Controllers\Settings\ParameterController::class, 'storePaymentMethod'])->name('parameters.payment_methods.store');
         Route::put('/catalogos/metodos-pago/{paymentMethod}', [\App\Http\Controllers\Settings\ParameterController::class, 'updatePaymentMethod'])->name('parameters.payment_methods.update');
         Route::delete('/catalogos/metodos-pago/{paymentMethod}', [\App\Http\Controllers\Settings\ParameterController::class, 'destroyPaymentMethod'])->name('parameters.payment_methods.destroy');

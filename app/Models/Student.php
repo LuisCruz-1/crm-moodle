@@ -19,11 +19,16 @@ class Student extends Authenticatable
         'identity_doc',
         'phone',
         'password',
+        'is_suspended',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    protected $casts = [
+        'is_suspended' => 'boolean',
     ];
 
     public function lmsUser()

@@ -42,6 +42,8 @@ export default function Index({ students, filters }) {
                                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">DNI</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Cursos</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Moodle ID</th>
+                                    <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">Estado</th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
@@ -56,6 +58,25 @@ export default function Index({ students, filters }) {
                                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">{student.identity_doc ?? '—'}</td>
                                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">{student.enrollments_count ?? 0}</td>
                                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">{student.lms_user_id ?? '—'}</td>
+                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-center">
+                                            {student.is_suspended ? (
+                                                <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">Suspendido</span>
+                                            ) : (
+                                                <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Activo</span>
+                                            )}
+                                        </td>
+                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-right">
+                                            <button
+                                                onClick={() => {
+                                                    if(confirm(student.is_suspended ? '¿Activar cuenta del estudiante en el CRM y Moodle?' : '¿Suspender cuenta del estudiante en el CRM y Moodle?')) {
+                                                        router.post(route('students.toggle_suspension', student.id), {}, { preserveScroll: true });
+                                                    }
+                                                }}
+                                                className={`text-xs font-semibold ${student.is_suspended ? 'text-green-600 hover:text-green-900' : 'text-red-600 hover:text-red-900'}`}
+                                            >
+                                                {student.is_suspended ? 'Activar' : 'Suspender'}
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

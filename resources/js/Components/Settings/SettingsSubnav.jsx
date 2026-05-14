@@ -7,7 +7,8 @@ import {
     BanknotesIcon,
     CreditCardIcon,
     CurrencyDollarIcon,
-    PhotoIcon
+    PhotoIcon,
+    ClockIcon
 } from '@heroicons/react/24/outline';
 
 export default function SettingsSubnav() {
@@ -25,6 +26,12 @@ export default function SettingsSubnav() {
             href: route('settings.catalogs.index'),
             icon: AdjustmentsHorizontalIcon,
             current: url.startsWith('/configuracion/catalogos'),
+        },
+        {
+            name: 'Tareas Programadas',
+            href: route('settings.crons.index'),
+            icon: ClockIcon,
+            current: url.startsWith('/configuracion/crons'),
         },
         {
             name: 'Integración Moodle',

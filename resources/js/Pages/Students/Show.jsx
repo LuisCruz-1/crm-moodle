@@ -67,6 +67,26 @@ export default function Show({ student, courses, cohorts }) {
                                     <dt className="text-gray-500">Moodle ID</dt>
                                     <dd className="font-medium text-gray-900">{student.lms_user_id ?? 'No vinculado'}</dd>
                                 </div>
+                                <div>
+                                    <dt className="text-gray-500">Estado de la Cuenta</dt>
+                                    <dd className="font-medium">
+                                        {student.is_suspended ? (
+                                            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">Suspendido</span>
+                                        ) : (
+                                            <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Activo</span>
+                                        )}
+                                        <button
+                                            onClick={() => {
+                                                if(confirm(student.is_suspended ? '¿Activar cuenta del estudiante en el CRM y Moodle?' : '¿Suspender cuenta del estudiante en el CRM y Moodle?')) {
+                                                    router.post(route('students.toggle_suspension', student.id), {}, { preserveScroll: true });
+                                                }
+                                            }}
+                                            className={`ml-3 text-xs font-semibold underline ${student.is_suspended ? 'text-green-600 hover:text-green-900' : 'text-red-600 hover:text-red-900'}`}
+                                        >
+                                            {student.is_suspended ? 'Activar' : 'Suspender'}
+                                        </button>
+                                    </dd>
+                                </div>
                             </dl>
                         </div>
 

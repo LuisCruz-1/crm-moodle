@@ -114,6 +114,32 @@ class StudentController extends Controller
         return redirect()->route('students.show', $student->id)->with('success', 'Estudiante actualizado.');
     }
 
+    public function toggleSuspension(Student $student, \App\Integrations\Moodle\MoodleProvisioningService $moodle): RedirectResponse
+    {
+        $newStatus = !$student->is_suspended;
+        $student->update(['is_suspended' => $newStatus]);
+
+        if ($student->lms_user_id) {
+            try {
+                // To suspend/activate a user in Moodle we use core_user_update_users and the "suspended" field
+                $moodleApi = app(\App\Integrations\Moodle\MoodleRestApi::class);
+                $moodleApi->call('core_user_update_users', [
+                    'users' => [
+                        [
+                            'id' => $student->lmsUser->moodle_id,
+                            'suspended' => $newStatus ? 1 : 0,
+                        ]
+                    ]
+                ]);
+            } catch (\Throwable $e) {
+                return back()->with('error', 'Estado actualizado localmente, pero falló la sincronización con Moodle: ' . $e->getMessage());
+            }
+        }
+
+        $msg = $newStatus ? 'Cuenta suspendida correctamente.' : 'Cuenta activada correctamente.';
+        return back()->with('success', $msg);
+    }
+
     public function updatePassword(Request $request, Student $student, \App\Integrations\Moodle\MoodleProvisioningService $moodle): RedirectResponse
     {
         $data = $request->validate([

@@ -73,4 +73,9 @@ Schedule::call(function (SettingsStore $settings) {
     }
 })->everyMinute()->name('moodle:sync-auto');
 
-Schedule::command('finance:mark-overdue')->dailyAt('00:05');
+try {
+    $markOverdueTime = \App\Models\Setting::where('key', 'finance.mark_overdue_time')->value('value') ?? '00:05';
+    Schedule::command('finance:mark-overdue')->dailyAt($markOverdueTime);
+} catch (\Throwable $e) {
+    Schedule::command('finance:mark-overdue')->dailyAt('00:05');
+}
