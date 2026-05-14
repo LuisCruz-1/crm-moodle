@@ -20,7 +20,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
     const navigation = [
         { name: 'Dashboard', href: route('dashboard'), current: route().current('dashboard'), icon: ChartPieIcon },
-        { name: 'CRM & Ventas', href: route('leads.index'), current: route().current('leads.*'), icon: UsersIcon },
+        { name: 'CRM & Ventas', href: route('crm.leads.index'), current: route().current('crm.leads.*'), icon: UsersIcon },
         { name: 'Académico', href: route('academics.courses.index'), current: route().current('academics.*'), icon: AcademicCapIcon },
         { name: 'Estudiantes', href: route('students.index'), current: route().current('students.*'), icon: UsersIcon },
         { name: 'Finanzas', href: route('finance.installments.index'), current: route().current('finance.*'), icon: CurrencyDollarIcon },
