@@ -92,18 +92,33 @@ export default function Installments({ installments, paymentMethods, activeSubmi
                                                 <td className="px-6 py-4 text-right">${Number(inst.amount).toFixed(2)}</td>
                                                 <td className="px-6 py-4 text-right font-bold text-indigo-600">${Number(inst.balance).toFixed(2)}</td>
                                                 <td className="px-6 py-4 text-center">{statusBadge}</td>
-                                                <td className="px-6 py-4 text-center">
+                                                <td className="px-6 py-4 text-center space-y-2">
                                                     {!isPaid && (
                                                         inReview ? (
-                                                            <span className="text-xs text-orange-600 font-semibold">En revisión</span>
+                                                            <span className="block text-xs text-orange-600 font-semibold">En revisión</span>
                                                         ) : (
                                                             <button
                                                                 onClick={() => openUploadModal(inst)}
-                                                                className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded"
+                                                                className="block w-full text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded"
                                                             >
                                                                 Subir Pago
                                                             </button>
                                                         )
+                                                    )}
+                                                    
+                                                    {/* Mostrar recibos si existen */}
+                                                    {inst.payments && inst.payments.map((pay) => 
+                                                        pay.file_path ? (
+                                                            <a 
+                                                                key={pay.id} 
+                                                                href={`/storage/${pay.file_path}`} 
+                                                                target="_blank" 
+                                                                rel="noreferrer" 
+                                                                className="block text-xs text-blue-600 hover:text-blue-800 underline mt-1"
+                                                            >
+                                                                Ver recibo
+                                                            </a>
+                                                        ) : null
                                                     )}
                                                 </td>
                                             </tr>

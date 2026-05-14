@@ -16,7 +16,7 @@ class InstallmentController extends Controller
         $student = Auth::guard('student')->user();
         
         $installments = $student->installments()
-            ->with(['paymentType', 'enrollment.course'])
+            ->with(['paymentType', 'enrollment.course', 'payments'])
             ->orderBy('due_date', 'asc')
             ->get();
 
