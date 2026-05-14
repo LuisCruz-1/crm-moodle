@@ -126,10 +126,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         Route::get('/catalogos', [\App\Http\Controllers\Settings\ParameterController::class, 'catalogs'])->name('catalogs.index');
         
-        Route::post('/catalogos/monedas', [\App\Http\Controllers\Settings\ParameterController::class, 'storeCurrency'])->name('parameters.currencies.store');
-        Route::put('/catalogos/monedas/{currency}', [\App\Http\Controllers\Settings\ParameterController::class, 'updateCurrency'])->name('parameters.currencies.update');
-        Route::delete('/catalogos/monedas/{currency}', [\App\Http\Controllers\Settings\ParameterController::class, 'destroyCurrency'])->name('parameters.currencies.destroy');
-
         Route::post('/catalogos/metodos-pago', [\App\Http\Controllers\Settings\ParameterController::class, 'storePaymentMethod'])->name('parameters.payment_methods.store');
         Route::put('/catalogos/metodos-pago/{paymentMethod}', [\App\Http\Controllers\Settings\ParameterController::class, 'updatePaymentMethod'])->name('parameters.payment_methods.update');
         Route::delete('/catalogos/metodos-pago/{paymentMethod}', [\App\Http\Controllers\Settings\ParameterController::class, 'destroyPaymentMethod'])->name('parameters.payment_methods.destroy');

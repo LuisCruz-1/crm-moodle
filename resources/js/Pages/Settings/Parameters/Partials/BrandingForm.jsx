@@ -8,6 +8,8 @@ import { PhotoIcon } from '@heroicons/react/24/outline';
 export default function BrandingForm({ branding }) {
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         app_name: branding.app_name || '',
+        currency_symbol: branding.currency_symbol || '$',
+        currency_code: branding.currency_code || 'USD',
         logo: null,
         favicon: null,
     });
@@ -22,24 +24,52 @@ export default function BrandingForm({ branding }) {
     return (
         <section className="bg-white">
             <header className="mb-6">
-                <h2 className="text-lg font-medium text-gray-900">Identidad Visual de la Plataforma</h2>
+                <h2 className="text-lg font-medium text-gray-900">Identidad Visual y Ajustes Generales</h2>
                 <p className="mt-1 text-sm text-gray-600">
-                    Actualiza el nombre, el logotipo principal y el ícono de pestaña (favicon) de tu sistema.
+                    Actualiza el nombre, el logotipo principal, el ícono de pestaña (favicon) de tu sistema y la moneda por defecto.
                 </p>
             </header>
 
             <form onSubmit={submit} className="space-y-6">
-                <div>
-                    <InputLabel htmlFor="app_name" value="Nombre de la Plataforma" />
-                    <TextInput
-                        id="app_name"
-                        type="text"
-                        className="mt-1 block w-full max-w-md"
-                        value={data.app_name}
-                        onChange={(e) => setData('app_name', e.target.value)}
-                        required
-                    />
-                    <InputError className="mt-2" message={errors.app_name} />
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                    <div>
+                        <InputLabel htmlFor="app_name" value="Nombre de la Plataforma" />
+                        <TextInput
+                            id="app_name"
+                            type="text"
+                            className="mt-1 block w-full"
+                            value={data.app_name}
+                            onChange={(e) => setData('app_name', e.target.value)}
+                            required
+                        />
+                        <InputError className="mt-2" message={errors.app_name} />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="currency_symbol" value="Símbolo de Moneda (Ej: $, €, S/)" />
+                        <TextInput
+                            id="currency_symbol"
+                            type="text"
+                            className="mt-1 block w-full"
+                            value={data.currency_symbol}
+                            onChange={(e) => setData('currency_symbol', e.target.value)}
+                            required
+                        />
+                        <InputError className="mt-2" message={errors.currency_symbol} />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="currency_code" value="Código de Moneda (Ej: USD, EUR, PEN)" />
+                        <TextInput
+                            id="currency_code"
+                            type="text"
+                            className="mt-1 block w-full"
+                            value={data.currency_code}
+                            onChange={(e) => setData('currency_code', e.target.value)}
+                            required
+                        />
+                        <InputError className="mt-2" message={errors.currency_code} />
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

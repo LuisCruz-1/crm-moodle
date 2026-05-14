@@ -20,6 +20,8 @@ class ParameterController extends Controller
                 'app_name' => Setting::where('key', 'app_name')->value('value') ?? config('app.name'),
                 'app_logo' => Setting::where('key', 'app_logo')->value('value'),
                 'app_favicon' => Setting::where('key', 'app_favicon')->value('value'),
+                'currency_symbol' => Setting::where('key', 'currency_symbol')->value('value') ?? '$',
+                'currency_code' => Setting::where('key', 'currency_code')->value('value') ?? 'USD',
             ]
         ]);
     }
@@ -27,7 +29,6 @@ class ParameterController extends Controller
     public function catalogs()
     {
         return Inertia::render('Settings/Parameters/Catalogs', [
-            'currencies' => Currency::all(),
             'paymentMethods' => PaymentMethod::all(),
             'paymentTypes' => PaymentType::all(),
         ]);
@@ -37,11 +38,15 @@ class ParameterController extends Controller
     {
         $request->validate([
             'app_name' => 'required|string|max:255',
+            'currency_symbol' => 'required|string|max:10',
+            'currency_code' => 'required|string|max:10',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
             'favicon' => 'nullable|mimes:ico,png,svg|max:1024',
         ]);
 
         Setting::updateOrCreate(['key' => 'app_name'], ['value' => $request->app_name, 'group' => 'branding']);
+        Setting::updateOrCreate(['key' => 'currency_symbol'], ['value' => $request->currency_symbol, 'group' => 'branding']);
+        Setting::updateOrCreate(['key' => 'currency_code'], ['value' => $request->currency_code, 'group' => 'branding']);
 
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('branding', 'public');
@@ -56,48 +61,7 @@ class ParameterController extends Controller
         return back()->with('success', 'Identidad visual actualizada correctamente.');
     }
 
-    // --- Currencies ---
-    public function storeCurrency(Request $request)
-    {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:10',
-            'symbol' => 'required|string|max:10',
-            'exchange_rate' => 'required|numeric|min:0',
-            'is_base' => 'boolean',
-        ]);
-
-        if (!empty($data['is_base'])) {
-            Currency::query()->update(['is_base' => false]);
-        }
-
-        Currency::create($data);
-        return back()->with('success', 'Moneda creada correctamente.');
-    }
-
-    public function updateCurrency(Request $request, Currency $currency)
-    {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:10',
-            'symbol' => 'required|string|max:10',
-            'exchange_rate' => 'required|numeric|min:0',
-            'is_base' => 'boolean',
-        ]);
-
-        if (!empty($data['is_base']) && !$currency->is_base) {
-            Currency::query()->update(['is_base' => false]);
-        }
-
-        $currency->update($data);
-        return back()->with('success', 'Moneda actualizada correctamente.');
-    }
-
-    public function destroyCurrency(Currency $currency)
-    {
-        $currency->delete();
-        return back()->with('success', 'Moneda eliminada.');
-    }
+    // The currency CRUD methods have been removed as per simplification request.
 
     // --- Payment Methods ---
     public function storePaymentMethod(Request $request)

@@ -3,9 +3,6 @@ import { Head } from '@inertiajs/react';
 import SettingsSubnav from '@/Components/Settings/SettingsSubnav';
 import { useState } from 'react';
 import BrandingForm from './Partials/BrandingForm';
-import CurrenciesTable from './Partials/CurrenciesTable';
-import PaymentMethodsTable from './Partials/PaymentMethodsTable';
-import PaymentTypesTable from './Partials/PaymentTypesTable';
 
 export default function Identity({ branding }) {
     return (
