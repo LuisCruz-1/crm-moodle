@@ -15,16 +15,10 @@ export default function SettingsSubnav() {
 
     const navigation = [
         {
-            name: 'Identidad Visual',
-            href: route('settings.parameters.identity'),
-            icon: PhotoIcon,
-            current: url.startsWith('/configuracion/identidad'),
-        },
-        {
-            name: 'Catálogos Globales',
+            name: 'Catálogos & Identidad',
             href: route('settings.parameters.index'),
             icon: AdjustmentsHorizontalIcon,
-            current: url.startsWith('/configuracion/catalogos'),
+            current: url.startsWith('/configuracion/parametros'),
         },
         {
             name: 'Integración Moodle',

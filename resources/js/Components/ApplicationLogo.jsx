@@ -8,7 +8,8 @@ export default function ApplicationLogo(props) {
             <img 
                 src={global.app_logo} 
                 alt={global?.app_name || "CRM Académico"} 
-                className={props.className || "h-10 w-auto object-contain"}
+                className="h-10 w-auto object-contain"
+                {...props}
             />
         );
     }

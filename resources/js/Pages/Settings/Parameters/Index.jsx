@@ -2,15 +2,16 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import SettingsSubnav from '@/Components/Settings/SettingsSubnav';
 import { useState } from 'react';
+import BrandingForm from './Partials/BrandingForm';
 import CurrenciesTable from './Partials/CurrenciesTable';
 import PaymentMethodsTable from './Partials/PaymentMethodsTable';
 import PaymentTypesTable from './Partials/PaymentTypesTable';
 
-export default function Index({ currencies, paymentMethods, paymentTypes }) {
-    const [activeTab, setActiveTab] = useState('currencies');
+export default function Index({ currencies, paymentMethods, paymentTypes, branding }) {
+    const [activeTab, setActiveTab] = useState('branding');
 
     return (
-        <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Catálogos Globales</h2>}>
+        <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Catálogos & Identidad</h2>}>
             <Head title="Configuración - Catálogos" />
 
             <div className="py-12">
@@ -19,12 +20,18 @@ export default function Index({ currencies, paymentMethods, paymentTypes }) {
                         <SettingsSubnav />
                         
                         <div className="mb-8 border-b border-gray-200">
-                            <nav className="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
+                            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+                                <button
+                                    onClick={() => setActiveTab('branding')}
+                                    className={`${activeTab === 'branding' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium`}
+                                >
+                                    Identidad Visual
+                                </button>
                                 <button
                                     onClick={() => setActiveTab('currencies')}
                                     className={`${activeTab === 'currencies' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium`}
                                 >
-                                    Monedas
+                                    Monedas Globales
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('payment_methods')}
@@ -42,6 +49,7 @@ export default function Index({ currencies, paymentMethods, paymentTypes }) {
                         </div>
 
                         <div className="mt-6">
+                            {activeTab === 'branding' && <BrandingForm branding={branding} />}
                             {activeTab === 'currencies' && <CurrenciesTable currencies={currencies} />}
                             {activeTab === 'payment_methods' && <PaymentMethodsTable paymentMethods={paymentMethods} />}
                             {activeTab === 'payment_types' && <PaymentTypesTable paymentTypes={paymentTypes} />}
