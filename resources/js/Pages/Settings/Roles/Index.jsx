@@ -99,7 +99,7 @@ export default function Index({ roles, permissions }) {
                                             <td className="px-3 py-4 text-sm text-gray-500 max-w-xl">
                                                 <div className="flex flex-wrap gap-1">
                                                     {role.permissions.map(permission => (
-                                                        <span key={permission.id} className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                        <span key={permission.id} title={permission.description} className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 cursor-help">
                                                             {permission.name}
                                                         </span>
                                                     ))}
@@ -142,20 +142,25 @@ export default function Index({ roles, permissions }) {
 
                         <div>
                             <InputLabel value="Permisos" />
-                            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                            <div className="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 {permissions.map(permission => (
-                                    <div key={permission.id} className="flex items-center">
-                                        <input
-                                            id={`permission-${permission.id}`}
-                                            type="checkbox"
-                                            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 disabled:opacity-50"
-                                            checked={data.permissions.includes(permission.name) || editingRole?.name === 'superadmin'}
-                                            onChange={(e) => handlePermissionChange(e, permission.name)}
-                                            disabled={editingRole?.name === 'superadmin'}
-                                        />
-                                        <label htmlFor={`permission-${permission.id}`} className="ml-2 block text-sm text-gray-900">
-                                            {permission.name}
-                                        </label>
+                                    <div key={permission.id} className="relative flex items-start">
+                                        <div className="flex h-6 items-center">
+                                            <input
+                                                id={`permission-${permission.id}`}
+                                                type="checkbox"
+                                                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 disabled:opacity-50"
+                                                checked={data.permissions.includes(permission.name) || editingRole?.name === 'superadmin'}
+                                                onChange={(e) => handlePermissionChange(e, permission.name)}
+                                                disabled={editingRole?.name === 'superadmin'}
+                                            />
+                                        </div>
+                                        <div className="ml-3 text-sm leading-6">
+                                            <label htmlFor={`permission-${permission.id}`} className="font-medium text-gray-900">
+                                                {permission.name}
+                                            </label>
+                                            <p className="text-gray-500">{permission.description}</p>
+                                        </div>
                                     </div>
                                 ))}
                             </div>

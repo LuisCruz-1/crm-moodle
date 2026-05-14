@@ -196,9 +196,31 @@ class BackofficeController extends Controller
         return $this->placeholder('Configuración · Integración Moodle');
     }
 
-    public function settingsParameters(): Response
+    public function settingsParameters()
     {
-        return $this->placeholder('Configuración · Parámetros');
+        $parameters = \App\Models\Setting::all();
+        return Inertia::render('Settings/Parameters/Index', [
+            'parameters' => $parameters
+        ]);
+    }
+
+    public function updateParameters(Request $request)
+    {
+        $data = $request->validate([
+            'settings' => 'required|array',
+            'settings.*.id' => 'required|exists:settings,id',
+            'settings.*.value' => 'nullable|string'
+        ]);
+
+        foreach ($data['settings'] as $settingData) {
+            \App\Models\Setting::where('id', $settingData['id'])
+                ->update([
+                    'value' => $settingData['value'],
+                    'updated_by' => auth()->id()
+                ]);
+        }
+
+        return redirect()->back()->with('success', 'Parámetros actualizados correctamente');
     }
 
     public function adminUsers(): Response

@@ -118,7 +118,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('configuracion')->name('settings.')->group(function () {
         Route::get('/moodle', [SettingsMoodleController::class, 'index'])->name('moodle.index');
         Route::put('/moodle', [SettingsMoodleController::class, 'update'])->name('moodle.update');
+        
         Route::get('/parametros', [BackofficeController::class, 'settingsParameters'])->name('parameters.index');
+        Route::put('/parametros', [BackofficeController::class, 'updateParameters'])->name('parameters.update');
         
         Route::get('/usuarios', [BackofficeController::class, 'adminUsers'])->name('users.index');
         Route::post('/usuarios', [BackofficeController::class, 'storeUser'])->name('users.store');

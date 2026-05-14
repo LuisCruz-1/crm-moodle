@@ -29,7 +29,7 @@ class ReportController extends Controller
         }
         
         $courses = LmsCourse::where('visible', 1)->get(['id', 'fullname']);
-        $cohorts = LmsCohort::where('visible', 1)->get(['id', 'name']);
+        $cohorts = LmsCohort::get(['id', 'name']);
 
         return Inertia::render('Reports/Index', [
             'advisors' => $advisors,
