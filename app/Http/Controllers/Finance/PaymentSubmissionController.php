@@ -56,7 +56,9 @@ class PaymentSubmissionController extends Controller
                 'paid_at' => $submission->created_at, // Or today?
                 'source' => 'submission',
                 'approved_by' => $request->user()?->id,
-                'notes' => 'Aprobado desde Inbox. Ref: ' . $submission->reference,
+                'reference' => $submission->reference,
+                'file_path' => $submission->file_path,
+                'notes' => 'Aprobado desde Inbox.',
             ]);
 
             $installment->balance -= $data['amount'];

@@ -81,6 +81,7 @@ export default function Index({ submissions, filters, paymentMethods }) {
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">{sub.status}</td>
                                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                                            <button onClick={() => openModal(sub, 'details')} className="text-blue-600 hover:text-blue-900 mr-3">Ver Detalles</button>
                                             {sub.status === 'in_review' && (
                                                 <>
                                                     <button onClick={() => openModal(sub, 'approve')} className="text-green-600 hover:text-green-900 mr-3">Aprobar</button>
@@ -100,45 +101,101 @@ export default function Index({ submissions, filters, paymentMethods }) {
             </div>
 
             <Modal show={!!selectedSub} onClose={() => setSelectedSub(null)}>
-                <form onSubmit={submit} className="p-6">
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">
-                        {action === 'approve' ? 'Aprobar Pago' : 'Rechazar Comprobante'}
-                    </h2>
-                    
-                    {action === 'approve' ? (
-                        <div className="space-y-4">
-                            <div>
-                                <InputLabel value="Monto exacto aprobado" />
-                                <TextInput type="number" step="0.01" className="mt-1 block w-full" value={amount} onChange={e => setAmount(e.target.value)} required />
-                            </div>
-                            <div>
-                                <InputLabel value="Método de pago real" />
-                                <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value={paymentMethodId} onChange={e => setPaymentMethodId(e.target.value)} required>
-                                    <option value="">Seleccione...</option>
-                                    {(paymentMethods ?? []).map(pm => (
-                                        <option key={pm.id} value={pm.id}>{pm.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                    ) : (
-                        <div>
-                            <InputLabel value="Motivo de rechazo" />
-                            <textarea 
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
-                                rows="3" 
-                                value={reason} 
-                                onChange={e => setReason(e.target.value)} 
-                                required
-                            ></textarea>
-                        </div>
-                    )}
+                {action === 'details' ? (
+                    <div className="p-6">
+                        <h2 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Detalles del Comprobante</h2>
+                        
+                        {selectedSub && (
+                            <div className="space-y-4 text-sm">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <span className="block font-semibold text-gray-700">Estudiante:</span>
+                                        <span>{selectedSub.student?.first_name} {selectedSub.student?.last_name}</span>
+                                    </div>
+                                    <div>
+                                        <span className="block font-semibold text-gray-700">Curso:</span>
+                                        <span>{selectedSub.installment?.enrollment?.course?.fullname}</span>
+                                    </div>
+                                    <div>
+                                        <span className="block font-semibold text-gray-700">Fecha de Subida:</span>
+                                        <span>{new Date(selectedSub.created_at).toLocaleString()}</span>
+                                    </div>
+                                    <div>
+                                        <span className="block font-semibold text-gray-700">Estado:</span>
+                                        <span className="uppercase font-bold">{selectedSub.status}</span>
+                                    </div>
+                                    <div>
+                                        <span className="block font-semibold text-gray-700">Método de Pago Sugerido:</span>
+                                        <span>{selectedSub.payment_method?.name}</span>
+                                    </div>
+                                    <div>
+                                        <span className="block font-semibold text-gray-700">Número de Referencia:</span>
+                                        <span>{selectedSub.reference || '—'}</span>
+                                    </div>
+                                </div>
 
-                    <div className="mt-6 flex justify-end">
-                        <button type="button" onClick={() => setSelectedSub(null)} className="mr-3 text-sm text-gray-600">Cancelar</button>
-                        <PrimaryButton>{action === 'approve' ? 'Confirmar Aprobación' : 'Rechazar'}</PrimaryButton>
+                                {selectedSub.rejection_reason && (
+                                    <div className="pt-2 border-t mt-4">
+                                        <span className="block font-semibold text-red-700">Motivo de Rechazo:</span>
+                                        <p className="text-red-600 mt-1">{selectedSub.rejection_reason}</p>
+                                    </div>
+                                )}
+
+                                {selectedSub.file_path && (
+                                    <div className="pt-4 flex justify-center">
+                                        <a href={`/storage/${selectedSub.file_path}`} target="_blank" rel="noreferrer" className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
+                                            Ver Comprobante Adjunto
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        
+                        <div className="mt-6 flex justify-end">
+                            <button onClick={() => setSelectedSub(null)} className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Cerrar</button>
+                        </div>
                     </div>
-                </form>
+                ) : (
+                    <form onSubmit={submit} className="p-6">
+                        <h2 className="text-lg font-medium text-gray-900 mb-4">
+                            {action === 'approve' ? 'Aprobar Pago' : 'Rechazar Comprobante'}
+                        </h2>
+                        
+                        {action === 'approve' ? (
+                            <div className="space-y-4">
+                                <div>
+                                    <InputLabel value="Monto exacto aprobado" />
+                                    <TextInput type="number" step="0.01" className="mt-1 block w-full" value={amount} onChange={e => setAmount(e.target.value)} required />
+                                </div>
+                                <div>
+                                    <InputLabel value="Método de pago real" />
+                                    <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value={paymentMethodId} onChange={e => setPaymentMethodId(e.target.value)} required>
+                                        <option value="">Seleccione...</option>
+                                        {(paymentMethods ?? []).map(pm => (
+                                            <option key={pm.id} value={pm.id}>{pm.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        ) : (
+                            <div>
+                                <InputLabel value="Motivo de rechazo" />
+                                <textarea 
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                                    rows="3" 
+                                    value={reason} 
+                                    onChange={e => setReason(e.target.value)} 
+                                    required
+                                ></textarea>
+                            </div>
+                        )}
+
+                        <div className="mt-6 flex justify-end">
+                            <button type="button" onClick={() => setSelectedSub(null)} className="mr-3 text-sm text-gray-600">Cancelar</button>
+                            <PrimaryButton>{action === 'approve' ? 'Confirmar Aprobación' : 'Rechazar'}</PrimaryButton>
+                        </div>
+                    </form>
+                )}
             </Modal>
         </AuthenticatedLayout>
     );

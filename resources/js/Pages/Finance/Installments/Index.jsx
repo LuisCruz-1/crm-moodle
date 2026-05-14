@@ -81,7 +81,7 @@ export default function Index({ installments, filters, paymentMethods, courses }
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-4 border-b flex flex-col md:flex-row md:justify-between items-center gap-4">
                             <select 
-                                className="rounded-md border-gray-300 shadow-sm md:w-1/4"
+                                className="w-full rounded-md border-gray-300 shadow-sm md:w-1/4"
                                 value={filters?.status ?? ''}
                                 onChange={e => router.get(route('finance.installments.index'), { ...filters, status: e.target.value })}
                             >
@@ -93,7 +93,7 @@ export default function Index({ installments, filters, paymentMethods, courses }
                             </select>
 
                             <select 
-                                className="rounded-md border-gray-300 shadow-sm md:w-1/4"
+                                className="w-full rounded-md border-gray-300 shadow-sm md:w-1/4"
                                 value={filters?.course_id ?? ''}
                                 onChange={e => router.get(route('finance.installments.index'), { ...filters, course_id: e.target.value }, { preserveState: true })}
                             >
