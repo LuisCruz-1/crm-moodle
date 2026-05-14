@@ -51,8 +51,20 @@ export default function Index({ submissions, filters, paymentMethods }) {
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                        <div className="p-4 border-b flex flex-col md:flex-row md:justify-between items-center gap-4">
+                            <select 
+                                className="w-full rounded-md border-gray-300 shadow-sm md:w-1/4"
+                                value={filters?.status ?? 'in_review'}
+                                onChange={e => router.get(route('finance.inbox.index'), { ...filters, status: e.target.value })}
+                            >
+                                <option value="in_review">En Revisión</option>
+                                <option value="approved">Aprobados</option>
+                                <option value="rejected">Rechazados</option>
+                            </select>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Estudiante</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Curso / Cuota</th>
@@ -94,8 +106,9 @@ export default function Index({ submissions, filters, paymentMethods }) {
                             </tbody>
                         </table>
                         {(submissions?.data ?? []).length === 0 ? (
-                            <div className="p-6 text-center text-sm text-gray-500">No hay comprobantes pendientes de revisión.</div>
+                            <div className="p-6 text-center text-sm text-gray-500">No hay comprobantes para el estado seleccionado.</div>
                         ) : null}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -163,11 +163,16 @@ export default function Show({ course, activePlan, paymentTypes }) {
                                             </div>
 
                                             <div>
-                                                <InputLabel value="Frecuencia (opcional)" />
-                                                <TextInput
-                                                    className="mt-1 block w-full"
+                                                <InputLabel>
+                                                    Frecuencia (opc)
+                                                    <span className="ml-1 cursor-help text-gray-400" title="Unidad de tiempo para generar cuotas (Ej: 'days', 'weeks', 'months', 'years').">
+                                                        &#9432;
+                                                    </span>
+                                                </InputLabel>
+                                                <select
+                                                    className="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm"
                                                     defaultValue={item.frequency ?? ''}
-                                                    onBlur={(e) =>
+                                                    onChange={(e) =>
                                                         updateItem(item.id, {
                                                             payment_type_id: item.payment_type_id,
                                                             quantity: item.quantity,
@@ -176,12 +181,25 @@ export default function Show({ course, activePlan, paymentTypes }) {
                                                             interval_count: item.interval_count ?? '',
                                                         })
                                                     }
-                                                />
+                                                >
+                                                    <option value="">Ninguna</option>
+                                                    <option value="days">Días</option>
+                                                    <option value="weeks">Semanas</option>
+                                                    <option value="months">Meses</option>
+                                                    <option value="years">Años</option>
+                                                </select>
                                             </div>
 
                                             <div>
-                                                <InputLabel value="Intervalo (opcional)" />
+                                                <InputLabel>
+                                                    Intervalo (opc)
+                                                    <span className="ml-1 cursor-help text-gray-400" title="Cantidad de tiempo (Ej: Si es 1 mes, pon 1. Si es bimestral, pon 2).">
+                                                        &#9432;
+                                                    </span>
+                                                </InputLabel>
                                                 <TextInput
+                                                    type="number"
+                                                    min="1"
                                                     className="mt-1 block w-full"
                                                     defaultValue={item.interval_count ?? ''}
                                                     onBlur={(e) =>
@@ -250,13 +268,33 @@ export default function Show({ course, activePlan, paymentTypes }) {
                                             <InputError className="mt-2" message={addItem.errors.unit_amount} />
                                         </div>
                                         <div>
-                                            <InputLabel value="Frecuencia" />
-                                            <TextInput className="mt-1 block w-full" value={addItem.data.frequency} onChange={(e) => addItem.setData('frequency', e.target.value)} />
+                                            <InputLabel>
+                                                Frecuencia
+                                                <span className="ml-1 cursor-help text-gray-400" title="Unidad de tiempo para generar cuotas (Ej: 'days', 'weeks', 'months', 'years').">
+                                                    &#9432;
+                                                </span>
+                                            </InputLabel>
+                                            <select
+                                                className="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm"
+                                                value={addItem.data.frequency}
+                                                onChange={(e) => addItem.setData('frequency', e.target.value)}
+                                            >
+                                                <option value="">Ninguna (Pago Único)</option>
+                                                <option value="days">Días</option>
+                                                <option value="weeks">Semanas</option>
+                                                <option value="months">Meses</option>
+                                                <option value="years">Años</option>
+                                            </select>
                                             <InputError className="mt-2" message={addItem.errors.frequency} />
                                         </div>
                                         <div>
-                                            <InputLabel value="Intervalo" />
-                                            <TextInput className="mt-1 block w-full" value={addItem.data.interval_count} onChange={(e) => addItem.setData('interval_count', e.target.value)} />
+                                            <InputLabel>
+                                                Intervalo
+                                                <span className="ml-1 cursor-help text-gray-400" title="Cantidad de tiempo (Ej: Si es 1 mes, pon 1. Si es bimestral, pon 2).">
+                                                    &#9432;
+                                                </span>
+                                            </InputLabel>
+                                            <TextInput type="number" min="1" className="mt-1 block w-full" value={addItem.data.interval_count} onChange={(e) => addItem.setData('interval_count', e.target.value)} />
                                             <InputError className="mt-2" message={addItem.errors.interval_count} />
                                         </div>
                                     </div>
