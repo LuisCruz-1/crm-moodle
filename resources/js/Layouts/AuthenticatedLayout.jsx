@@ -55,6 +55,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Finanzas
                                 </NavLink>
                                 <NavLink
+                                    href={route('reports.index')}
+                                    active={route().current('reports.*')}
+                                >
+                                    Reportes
+                                </NavLink>
+                                <NavLink
                                     href={route('settings.moodle.index')}
                                     active={route().current('settings.*')}
                                 >
@@ -187,6 +193,12 @@ export default function AuthenticatedLayout({ header, children }) {
                             active={route().current('finance.*')}
                         >
                             Finanzas
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('reports.index')}
+                            active={route().current('reports.*')}
+                        >
+                            Reportes
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             href={route('settings.moodle.index')}

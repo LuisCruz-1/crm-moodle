@@ -23,6 +23,7 @@ use App\Http\Controllers\Students\StudentEnrollmentController;
 use App\Http\Controllers\Finance\PaymentSubmissionController;
 use App\Http\Controllers\Finance\InstallmentController;
 use App\Http\Controllers\Finance\PaymentController;
+use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -102,6 +103,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/metodos-de-pago', [BackofficeController::class, 'financePaymentMethods'])->name('payment_methods.index');
         Route::get('/monedas', [BackofficeController::class, 'financeCurrencies'])->name('currencies.index');
         Route::get('/tipos-de-pago', [BackofficeController::class, 'financePaymentTypes'])->name('payment_types.index');
+    });
+
+    Route::prefix('reportes')->name('reports.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/export/{type}', [ReportController::class, 'export'])->name('export');
     });
 
     Route::prefix('comunicaciones')->name('comms.')->group(function () {
