@@ -13,6 +13,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { PlusIcon } from '@heroicons/react/24/outline';
 
 function leadTitle(lead) {
+    if (!lead) return '';
     const first = lead.student?.first_name ?? lead.first_name ?? '';
     const last = lead.student?.last_name ?? lead.last_name ?? '';
     const name = `${first} ${last}`.trim();
