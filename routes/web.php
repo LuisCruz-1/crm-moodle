@@ -119,8 +119,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/moodle', [SettingsMoodleController::class, 'index'])->name('moodle.index');
         Route::put('/moodle', [SettingsMoodleController::class, 'update'])->name('moodle.update');
         
-        Route::get('/parametros', [BackofficeController::class, 'settingsParameters'])->name('parameters.index');
-        Route::put('/parametros', [BackofficeController::class, 'updateParameters'])->name('parameters.update');
+        Route::get('/parametros', [\App\Http\Controllers\Settings\ParameterController::class, 'index'])->name('parameters.index');
+        Route::post('/parametros/branding', [\App\Http\Controllers\Settings\ParameterController::class, 'updateBranding'])->name('parameters.branding');
+        
+        Route::post('/parametros/monedas', [\App\Http\Controllers\Settings\ParameterController::class, 'storeCurrency'])->name('parameters.currencies.store');
+        Route::put('/parametros/monedas/{currency}', [\App\Http\Controllers\Settings\ParameterController::class, 'updateCurrency'])->name('parameters.currencies.update');
+        Route::delete('/parametros/monedas/{currency}', [\App\Http\Controllers\Settings\ParameterController::class, 'destroyCurrency'])->name('parameters.currencies.destroy');
+
+        Route::post('/parametros/metodos-pago', [\App\Http\Controllers\Settings\ParameterController::class, 'storePaymentMethod'])->name('parameters.payment_methods.store');
+        Route::put('/parametros/metodos-pago/{paymentMethod}', [\App\Http\Controllers\Settings\ParameterController::class, 'updatePaymentMethod'])->name('parameters.payment_methods.update');
+        Route::delete('/parametros/metodos-pago/{paymentMethod}', [\App\Http\Controllers\Settings\ParameterController::class, 'destroyPaymentMethod'])->name('parameters.payment_methods.destroy');
+
+        Route::post('/parametros/tipos-pago', [\App\Http\Controllers\Settings\ParameterController::class, 'storePaymentType'])->name('parameters.payment_types.store');
+        Route::put('/parametros/tipos-pago/{paymentType}', [\App\Http\Controllers\Settings\ParameterController::class, 'updatePaymentType'])->name('parameters.payment_types.update');
+        Route::delete('/parametros/tipos-pago/{paymentType}', [\App\Http\Controllers\Settings\ParameterController::class, 'destroyPaymentType'])->name('parameters.payment_types.destroy');
         
         Route::get('/usuarios', [BackofficeController::class, 'adminUsers'])->name('users.index');
         Route::post('/usuarios', [BackofficeController::class, 'storeUser'])->name('users.store');

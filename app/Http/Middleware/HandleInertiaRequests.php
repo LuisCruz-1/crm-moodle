@@ -32,16 +32,26 @@ class HandleInertiaRequests extends Middleware
         $user = $request->user();
         $isStaff = $user instanceof \App\Models\User;
 
+        $appName = \App\Models\Setting::where('key', 'app_name')->value('value') ?? config('app.name');
+        $appLogo = \App\Models\Setting::where('key', 'app_logo')->value('value');
+        $appFavicon = \App\Models\Setting::where('key', 'app_favicon')->value('value');
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $user,
                 'roles' => $isStaff ? $user->getRoleNames() : [],
                 'permissions' => $isStaff ? $user->getAllPermissions()->pluck('name') : [],
+                'student' => $request->user('student'),
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
+            ],
+            'global' => [
+                'app_name' => $appName,
+                'app_logo' => $appLogo,
+                'app_favicon' => $appFavicon,
             ],
         ];
     }

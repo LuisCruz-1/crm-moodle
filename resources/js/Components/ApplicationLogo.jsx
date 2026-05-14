@@ -1,4 +1,19 @@
+import { usePage } from '@inertiajs/react';
+
 export default function ApplicationLogo(props) {
+    const { global } = usePage().props;
+
+    if (global?.app_logo) {
+        return (
+            <img 
+                src={global.app_logo} 
+                alt={global?.app_name || "CRM Académico"} 
+                className="h-10 w-auto object-contain"
+                {...props}
+            />
+        );
+    }
+
     return (
         <svg
             {...props}
