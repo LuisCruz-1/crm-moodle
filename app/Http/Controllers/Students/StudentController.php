@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Students;
 
 use App\Http\Controllers\Controller;
 use App\Integrations\Moodle\MoodleProvisioningService;
+use App\Jobs\SendTransactionalEmailJob;
 use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -51,6 +53,9 @@ class StudentController extends Controller
             'phone' => ['nullable', 'string', 'max:50'],
         ]);
 
+        $password = Str::random(10);
+        $data['password'] = \Illuminate\Support\Facades\Hash::make($password);
+
         $student = Student::create($data);
 
         try {
@@ -64,7 +69,16 @@ class StudentController extends Controller
                 ->with('error', 'Estudiante creado localmente, pero falló Moodle: ' . mb_substr($e->getMessage(), 0, 200));
         }
 
-        return redirect()->route('students.show', $student->id)->with('success', 'Estudiante creado exitosamente.');
+        // Send Welcome Email (Queued)
+        $portalUrl = rtrim(config('app.url'), '/') . '/portal';
+        SendTransactionalEmailJob::dispatch($student->email, 'welcome_student', [
+            'student_name' => $student->first_name . ' ' . $student->last_name,
+            'student_email' => $student->email,
+            'student_password' => $password,
+            'portal_url' => $portalUrl,
+        ]);
+
+        return redirect()->route('students.show', $student->id)->with('success', 'Estudiante creado exitosamente. Correo de bienvenida enviado.');
     }
 
     public function show(Student $student): Response
@@ -134,6 +148,12 @@ class StudentController extends Controller
             } catch (\Throwable $e) {
                 return back()->with('error', 'Estado de Moodle actualizado localmente, pero falló la sincronización: ' . $e->getMessage());
             }
+        }
+
+        if ($newStatus) {
+            SendTransactionalEmailJob::dispatch($student->email, 'account_suspended', [
+                'student_name' => $student->first_name . ' ' . $student->last_name,
+            ]);
         }
 
         $msg = $newStatus ? 'Acceso a Moodle suspendido correctamente.' : 'Acceso a Moodle activado correctamente.';

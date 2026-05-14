@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendTransactionalEmailJob;
 use App\Models\Payment;
 use App\Models\PaymentSubmission;
 use Illuminate\Http\RedirectResponse;
@@ -70,6 +71,15 @@ class PaymentSubmissionController extends Controller
             }
             $installment->save();
         });
+
+        // Send Email
+        SendTransactionalEmailJob::dispatch($submission->student->email, 'payment_receipt', [
+            'student_name' => $submission->student->first_name . ' ' . $submission->student->last_name,
+            'amount' => number_format($submission->amount, 2),
+            'concept' => $submission->installment->name,
+            'course_name' => $submission->installment->enrollment->course->fullname,
+            'payment_date' => $submission->payment_date->format('d/m/Y'),
+        ]);
 
         return back()->with('success', 'Comprobante aprobado y pago registrado.');
     }

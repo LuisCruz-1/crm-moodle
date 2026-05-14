@@ -7,6 +7,7 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Jobs\SendTransactionalEmailJob;
 
 class PaymentController extends Controller
 {

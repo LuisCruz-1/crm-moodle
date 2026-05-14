@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Jobs\SendTransactionalEmailJob;
 
 class InstallmentController extends Controller
 {
@@ -140,6 +141,15 @@ class InstallmentController extends Controller
             }
             $installment->save();
         });
+
+        // Send Email
+        SendTransactionalEmailJob::dispatch($installment->student->email, 'payment_receipt', [
+            'student_name' => $installment->student->first_name . ' ' . $installment->student->last_name,
+            'amount' => number_format($validated['amount'], 2),
+            'concept' => $installment->name,
+            'course_name' => $installment->enrollment->course->fullname,
+            'payment_date' => date('d/m/Y', strtotime($validated['payment_date'])),
+        ]);
 
         return back()->with('success', 'Pago registrado correctamente.');
     }
