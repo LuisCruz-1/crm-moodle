@@ -18,12 +18,21 @@ class SyncController extends Controller
             return back()->with('error', 'La sincronización ya está en curso.');
         }
 
-        $settings->setString('moodle', 'moodle.last_sync_status', 'queued');
-        $settings->setString('moodle', 'moodle.last_sync_requested_at', now()->toISOString());
-        $settings->setString('moodle', 'moodle.last_sync_error', '');
+        $settings->setString('moodle', 'moodle.last_sync_status', 'queued', $request->user()?->id, false);
+        $settings->setString('moodle', 'moodle.last_sync_error', null, $request->user()?->id, false);
+        $settings->setString('moodle', 'moodle.last_sync_step', null, $request->user()?->id, false);
+        $settings->setString('moodle', 'moodle.last_sync_stats', null, $request->user()?->id, false);
+        $settings->setString('moodle', 'moodle.last_sync_requested_at', now()->toISOString(), $request->user()?->id, false);
 
-        SyncMoodleJob::dispatch()->onConnection('redis');
+        try {
+            SyncMoodleJob::dispatchSync();
+        } catch (\Throwable $e) {
+            $settings->setString('moodle', 'moodle.last_sync_status', 'failed', $request->user()?->id, false);
+            $settings->setString('moodle', 'moodle.last_sync_error', mb_substr($e->getMessage(), 0, 2000), $request->user()?->id, false);
+            $settings->setString('moodle', 'moodle.last_sync_finished_at', now()->toISOString(), $request->user()?->id, false);
+            return back()->with('error', 'Error al sincronizar: ' . $e->getMessage());
+        }
 
-        return back()->with('success', 'Sincronización encolada correctamente. Puede tardar unos minutos en reflejarse.');
+        return back()->with('success', 'Sincronización completada correctamente.');
     }
 }
