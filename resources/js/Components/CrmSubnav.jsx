@@ -4,7 +4,7 @@ import Card from '@/Components/Card';
 export default function CrmSubnav() {
     return (
         <Card className="!p-0 overflow-hidden mb-6">
-            <div className="flex flex-wrap gap-6 px-6 pt-2 bg-gray-50/50 border-b border-gray-200">
+            <div className="flex flex-wrap gap-6 p-4 bg-gray-50/50 border-gray-200">
                 <NavLink href={route('crm.kanban.index')} active={route().current('crm.kanban.*')} className="pb-3 pt-2">
                     Kanban
                 </NavLink>
