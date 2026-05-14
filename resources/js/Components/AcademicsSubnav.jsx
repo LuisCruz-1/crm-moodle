@@ -7,9 +7,6 @@ export default function AcademicsSubnav() {
                 <NavLink href={route('academics.courses.index')} active={route().current('academics.courses.*')}>
                     Cursos
                 </NavLink>
-                <NavLink href={route('academics.sync.index')} active={route().current('academics.sync.*')}>
-                    Sincronización Moodle
-                </NavLink>
             </div>
         </div>
     );

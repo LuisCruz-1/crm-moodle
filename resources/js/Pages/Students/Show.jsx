@@ -68,7 +68,7 @@ export default function Show({ student, courses, cohorts }) {
                                     <dd className="font-medium text-gray-900">{student.lms_user_id ?? 'No vinculado'}</dd>
                                 </div>
                                 <div>
-                                    <dt className="text-gray-500">Estado de la Cuenta</dt>
+                                    <dt className="text-gray-500">Acceso a Moodle</dt>
                                     <dd className="font-medium">
                                         {student.is_suspended ? (
                                             <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">Suspendido</span>
@@ -77,7 +77,7 @@ export default function Show({ student, courses, cohorts }) {
                                         )}
                                         <button
                                             onClick={() => {
-                                                if(confirm(student.is_suspended ? '¿Activar cuenta del estudiante en el CRM y Moodle?' : '¿Suspender cuenta del estudiante en el CRM y Moodle?')) {
+                                                if(confirm(student.is_suspended ? '¿Permitir acceso al aula virtual (Moodle)?' : '¿Bloquear acceso al aula virtual (Moodle)? El estudiante aún podrá entrar al portal para pagar.')) {
                                                     router.post(route('students.toggle_suspension', student.id), {}, { preserveScroll: true });
                                                 }
                                             }}

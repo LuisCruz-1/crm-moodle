@@ -3,7 +3,7 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
 import SettingsSubnav from '@/Components/Settings/SettingsSubnav';
 
 export default function Index({ config, sync }) {
@@ -183,8 +183,23 @@ export default function Index({ config, sync }) {
                                 </div>
                             </div>
 
-                            <PrimaryButton disabled={form.processing}>Guardar</PrimaryButton>
+                            <PrimaryButton disabled={form.processing}>Guardar Configuración</PrimaryButton>
                         </form>
+                    </div>
+
+                    <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg border border-gray-200">
+                        <div className="text-sm font-medium text-gray-700">Sincronización Manual</div>
+                        <p className="mt-2 text-sm text-gray-500">
+                            Fuerza una sincronización inmediata de Categorías, Cursos, Cohortes y Estudiantes desde Moodle hacia el CRM.
+                        </p>
+                        <div className="mt-4">
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                router.post(route('settings.moodle.sync.run'), {}, { preserveScroll: true });
+                            }}>
+                                <PrimaryButton type="submit">Ejecutar Sincronización Ahora</PrimaryButton>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -132,11 +132,11 @@ class StudentController extends Controller
                     ]
                 ]);
             } catch (\Throwable $e) {
-                return back()->with('error', 'Estado actualizado localmente, pero falló la sincronización con Moodle: ' . $e->getMessage());
+                return back()->with('error', 'Estado de Moodle actualizado localmente, pero falló la sincronización: ' . $e->getMessage());
             }
         }
 
-        $msg = $newStatus ? 'Cuenta suspendida correctamente.' : 'Cuenta activada correctamente.';
+        $msg = $newStatus ? 'Acceso a Moodle suspendido correctamente.' : 'Acceso a Moodle activado correctamente.';
         return back()->with('success', $msg);
     }
 

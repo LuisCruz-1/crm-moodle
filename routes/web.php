@@ -73,9 +73,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/cursos/{course}/planes/{plan}/items/{item}', [AcademicsCoursePaymentPlanController::class, 'updateItem'])->name('courses.plans.items.update');
         Route::delete('/cursos/{course}/planes/{plan}/items/{item}', [AcademicsCoursePaymentPlanController::class, 'destroyItem'])->name('courses.plans.items.destroy');
         Route::post('/cursos/{course}/planes/{plan}/items/reorder', [AcademicsCoursePaymentPlanController::class, 'reorderItems'])->name('courses.plans.items.reorder');
-
-        Route::get('/sync', [AcademicsSyncController::class, 'index'])->name('sync.index');
-        Route::post('/sync', [AcademicsSyncController::class, 'run'])->name('sync.run');
     });
 
     Route::prefix('estudiantes')->name('students.')->group(function () {
@@ -121,6 +118,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('configuracion')->name('settings.')->group(function () {
         Route::get('/moodle', [SettingsMoodleController::class, 'index'])->name('moodle.index');
         Route::put('/moodle', [SettingsMoodleController::class, 'update'])->name('moodle.update');
+        Route::post('/moodle/sync', [AcademicsSyncController::class, 'run'])->name('moodle.sync.run');
         
         Route::get('/identidad', [\App\Http\Controllers\Settings\ParameterController::class, 'identity'])->name('identity.index');
         Route::post('/identidad/branding', [\App\Http\Controllers\Settings\ParameterController::class, 'updateBranding'])->name('identity.branding');
