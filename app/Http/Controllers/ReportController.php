@@ -21,7 +21,13 @@ class ReportController extends Controller
 {
     public function index()
     {
-        $advisors = User::role(['sales', 'admin', 'superadmin'])->get(['id', 'name']);
+        // Prevent RoleDoesNotExist by using available roles or just getting all users if roles are not yet correctly seeded.
+        try {
+            $advisors = User::role(['ventas', 'superadmin'])->get(['id', 'name']);
+        } catch (\Exception $e) {
+            $advisors = User::get(['id', 'name']);
+        }
+        
         $courses = LmsCourse::where('visible', 1)->get(['id', 'fullname']);
         $cohorts = LmsCohort::where('visible', 1)->get(['id', 'name']);
 

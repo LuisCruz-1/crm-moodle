@@ -4,6 +4,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm } from '@inertiajs/react';
+import SettingsSubnav from '@/Components/Settings/SettingsSubnav';
 
 export default function Index({ config, sync }) {
     let stats = null;
@@ -32,11 +33,13 @@ export default function Index({ config, sync }) {
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Configuración · Integración Moodle</h2>}>
-            <Head title="Configuración · Integración Moodle" />
+        <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Configuración del Sistema</h2>}>
+            <Head title="Configuración - Moodle" />
 
             <div className="py-12">
                 <div className="mx-auto max-w-3xl space-y-6 sm:px-6 lg:px-8">
+                    <SettingsSubnav />
+
                     <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">
                         <div className="text-sm font-medium text-gray-700">Estado de sincronización</div>
                         <div className="mt-3 grid grid-cols-1 gap-2 text-sm text-gray-800">

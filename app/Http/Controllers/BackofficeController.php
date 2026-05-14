@@ -203,6 +203,116 @@ class BackofficeController extends Controller
 
     public function adminUsers(): Response
     {
-        return $this->placeholder('Admin · Usuarios');
+        $users = \App\Models\User::with('roles')->get();
+        $roles = \Spatie\Permission\Models\Role::all();
+
+        return Inertia::render('Settings/Users/Index', [
+            'users' => $users,
+            'roles' => $roles,
+        ]);
+    }
+
+    public function adminRoles()
+    {
+        $roles = \Spatie\Permission\Models\Role::with('permissions')->get();
+        $permissions = \Spatie\Permission\Models\Permission::all();
+
+        return Inertia::render('Settings/Roles/Index', [
+            'roles' => $roles,
+            'permissions' => $permissions,
+        ]);
+    }
+
+    public function storeRole(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255|unique:roles,name',
+            'permissions' => 'array'
+        ]);
+
+        $role = \Spatie\Permission\Models\Role::create(['name' => $data['name']]);
+        if (!empty($data['permissions'])) {
+            $role->syncPermissions($data['permissions']);
+        }
+
+        return redirect()->back()->with('success', 'Rol creado correctamente');
+    }
+
+    public function updateRole(Request $request, \Spatie\Permission\Models\Role $role)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
+            'permissions' => 'array'
+        ]);
+
+        $role->update(['name' => $data['name']]);
+        if (isset($data['permissions'])) {
+            $role->syncPermissions($data['permissions']);
+        }
+
+        return redirect()->back()->with('success', 'Rol actualizado correctamente');
+    }
+
+    public function destroyRole(\Spatie\Permission\Models\Role $role)
+    {
+        if ($role->name === 'superadmin') {
+            return redirect()->back()->with('error', 'No se puede eliminar el rol superadmin');
+        }
+        $role->delete();
+        return redirect()->back()->with('success', 'Rol eliminado correctamente');
+    }
+
+    public function storeUser(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'roles' => 'array'
+        ]);
+
+        $user = \App\Models\User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
+        ]);
+
+        if (!empty($data['roles'])) {
+            $user->syncRoles($data['roles']);
+        }
+
+        return redirect()->back()->with('success', 'Usuario creado correctamente');
+    }
+
+    public function updateUser(Request $request, \App\Models\User $user)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8',
+            'roles' => 'array'
+        ]);
+
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        if (!empty($data['password'])) {
+            $user->password = \Illuminate\Support\Facades\Hash::make($data['password']);
+        }
+        $user->save();
+
+        if (isset($data['roles'])) {
+            $user->syncRoles($data['roles']);
+        }
+
+        return redirect()->back()->with('success', 'Usuario actualizado correctamente');
+    }
+
+    public function destroyUser(\App\Models\User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return redirect()->back()->with('error', 'No puedes eliminar tu propio usuario');
+        }
+        $user->delete();
+        return redirect()->back()->with('success', 'Usuario eliminado correctamente');
     }
 }

@@ -119,10 +119,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/moodle', [SettingsMoodleController::class, 'index'])->name('moodle.index');
         Route::put('/moodle', [SettingsMoodleController::class, 'update'])->name('moodle.update');
         Route::get('/parametros', [BackofficeController::class, 'settingsParameters'])->name('parameters.index');
-    });
-
-    Route::prefix('admin')->name('admin.')->group(function () {
+        
         Route::get('/usuarios', [BackofficeController::class, 'adminUsers'])->name('users.index');
+        Route::post('/usuarios', [BackofficeController::class, 'storeUser'])->name('users.store');
+        Route::put('/usuarios/{user}', [BackofficeController::class, 'updateUser'])->name('users.update');
+        Route::delete('/usuarios/{user}', [BackofficeController::class, 'destroyUser'])->name('users.destroy');
+
+        Route::get('/roles', [BackofficeController::class, 'adminRoles'])->name('roles.index');
+        Route::post('/roles', [BackofficeController::class, 'storeRole'])->name('roles.store');
+        Route::put('/roles/{role}', [BackofficeController::class, 'updateRole'])->name('roles.update');
+        Route::delete('/roles/{role}', [BackofficeController::class, 'destroyRole'])->name('roles.destroy');
     });
 });
 
