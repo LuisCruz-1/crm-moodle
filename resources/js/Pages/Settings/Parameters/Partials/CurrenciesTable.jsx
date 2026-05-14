@@ -131,7 +131,7 @@ export default function CurrenciesTable({ currencies }) {
                             </div>
                         </div>
                         <div>
-                            <InputLabel htmlFor="exchange_rate" value="Tasa de Cambio (respecto a la base)" />
+                            <InputLabel htmlFor="exchange_rate" value="Tasa de Cambio (Ej: 1 si es moneda principal)" />
                             <TextInput id="exchange_rate" type="number" step="0.0001" className="mt-1 block w-full" value={data.exchange_rate} onChange={(e) => setData('exchange_rate', e.target.value)} required />
                             <InputError message={errors.exchange_rate} className="mt-2" />
                         </div>

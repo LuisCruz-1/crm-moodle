@@ -26,11 +26,13 @@ use App\Http\Controllers\Finance\PaymentController;
 use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    if (auth()->guard('web')->check()) {
+        return redirect()->route('dashboard');
+    }
+    if (auth()->guard('student')->check()) {
+        return redirect()->route('portal.installments');
+    }
+    return redirect()->route('login');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -119,7 +121,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/moodle', [SettingsMoodleController::class, 'index'])->name('moodle.index');
         Route::put('/moodle', [SettingsMoodleController::class, 'update'])->name('moodle.update');
         
-        Route::get('/parametros', [\App\Http\Controllers\Settings\ParameterController::class, 'index'])->name('parameters.index');
+        Route::get('/identidad', [\App\Http\Controllers\Settings\ParameterController::class, 'identity'])->name('parameters.identity');
+        Route::get('/catalogos', [\App\Http\Controllers\Settings\ParameterController::class, 'index'])->name('parameters.index');
         Route::post('/parametros/branding', [\App\Http\Controllers\Settings\ParameterController::class, 'updateBranding'])->name('parameters.branding');
         
         Route::post('/parametros/monedas', [\App\Http\Controllers\Settings\ParameterController::class, 'storeCurrency'])->name('parameters.currencies.store');
