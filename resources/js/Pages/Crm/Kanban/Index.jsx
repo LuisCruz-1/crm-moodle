@@ -6,7 +6,11 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import SelectInput from '@/Components/SelectInput';
+import Card from '@/Components/Card';
+import Modal from '@/Components/Modal';
 import { useEffect, useMemo, useState } from 'react';
+import { PlusIcon } from '@heroicons/react/24/outline';
 
 function leadTitle(lead) {
     const first = lead.student?.first_name ?? lead.first_name ?? '';
@@ -130,6 +134,7 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
 
     const onDropToStage = (e, stageId) => {
         e.preventDefault();
+        e.currentTarget.classList.remove('ring-2', 'ring-primary-500', 'bg-surface-100');
         const leadId = Number(e.dataTransfer.getData('text/plain'));
         if (!leadId) return;
         moveLead({ leadId, pipelineId: selectedPipeline.id, stageId });
@@ -140,6 +145,15 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
         e.dataTransfer.dropEffect = 'move';
     };
 
+    const onDragEnter = (e) => {
+        e.preventDefault();
+        e.currentTarget.classList.add('ring-2', 'ring-primary-500', 'bg-surface-100');
+    };
+
+    const onDragLeave = (e) => {
+        e.currentTarget.classList.remove('ring-2', 'ring-primary-500', 'bg-surface-100');
+    };
+
     const moveLeadToOtherPipeline = (leadId, toPipelineId) => {
         const pipeline = (pipelines ?? []).find((p) => String(p.id) === String(toPipelineId));
         const firstStageId = pipeline?.stages?.[0]?.id;
@@ -148,277 +162,271 @@ export default function Index({ pipelines, selectedPipeline, leads, filters, cou
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">CRM · Kanban</h2>}>
+        <AuthenticatedLayout header="CRM · Kanban">
             <Head title="CRM · Kanban" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-4 sm:px-6 lg:px-8">
-                    <CrmSubnav />
-                    <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                            <div>
-                                <div className="text-sm font-medium text-gray-700">Pipeline</div>
-                                <select
-                                    className="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm"
-                                    value={filters?.pipeline_id ?? selectedPipeline?.id ?? ''}
-                                    onChange={(e) => applyFilters({ pipeline_id: e.target.value })}
-                                >
-                                    {(pipelines ?? []).map((p) => (
-                                        <option key={p.id} value={p.id}>
-                                            {p.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <div className="text-sm font-medium text-gray-700">Curso</div>
-                                <select
-                                    className="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm"
-                                    value={filters?.course_id ?? ''}
-                                    onChange={(e) => applyFilters({ course_id: e.target.value })}
-                                >
-                                    <option value="">Todos</option>
-                                    {(courses ?? []).map((c) => (
-                                        <option key={c.id} value={c.id}>
-                                            {c.fullname}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <div className="text-sm font-medium text-gray-700">Vendedor</div>
-                                <select
-                                    className="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm"
-                                    value={filters?.assigned_to_user_id ?? ''}
-                                    onChange={(e) => applyFilters({ assigned_to_user_id: e.target.value })}
-                                >
-                                    <option value="">Todos</option>
-                                    <option value="unassigned">Sin asignar</option>
-                                    {(salesUsers ?? []).map((u) => (
-                                        <option key={u.id} value={u.id}>
-                                            {u.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="flex items-end justify-end">
-                                <Link className="rounded-md bg-gray-900 px-3 py-2 text-sm text-white" href={route('crm.leads.create')}>
-                                    Crear lead
-                                </Link>
-                            </div>
+            <div className="space-y-6">
+                <CrmSubnav />
+                
+                <Card>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-4 items-end">
+                        <div>
+                            <InputLabel value="Pipeline" />
+                            <SelectInput
+                                className="mt-1 w-full"
+                                value={filters?.pipeline_id ?? selectedPipeline?.id ?? ''}
+                                onChange={(e) => applyFilters({ pipeline_id: e.target.value })}
+                            >
+                                {(pipelines ?? []).map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                        {p.name}
+                                    </option>
+                                ))}
+                            </SelectInput>
+                        </div>
+                        <div>
+                            <InputLabel value="Curso" />
+                            <SelectInput
+                                className="mt-1 w-full"
+                                value={filters?.course_id ?? ''}
+                                onChange={(e) => applyFilters({ course_id: e.target.value })}
+                            >
+                                <option value="">Todos</option>
+                                {(courses ?? []).map((c) => (
+                                    <option key={c.id} value={c.id}>
+                                        {c.fullname}
+                                    </option>
+                                ))}
+                            </SelectInput>
+                        </div>
+                        <div>
+                            <InputLabel value="Vendedor" />
+                            <SelectInput
+                                className="mt-1 w-full"
+                                value={filters?.assigned_to_user_id ?? ''}
+                                onChange={(e) => applyFilters({ assigned_to_user_id: e.target.value })}
+                            >
+                                <option value="">Todos</option>
+                                <option value="unassigned">Sin asignar</option>
+                                {(salesUsers ?? []).map((u) => (
+                                    <option key={u.id} value={u.id}>
+                                        {u.name}
+                                    </option>
+                                ))}
+                            </SelectInput>
+                        </div>
+                        <div className="flex justify-end">
+                            <Link className="btn-primary flex items-center" href={route('crm.leads.create')}>
+                                <PlusIcon className="w-5 h-5 mr-1" />
+                                Crear lead
+                            </Link>
                         </div>
                     </div>
+                </Card>
 
-                    {!selectedPipeline ? (
-                        <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">No hay pipelines activos.</div>
-                    ) : (
-                        <div className="grid gap-4 lg:grid-cols-4">
-                            {stages.map((stage) => (
-                                <div
-                                    key={stage.id}
-                                    className="overflow-hidden rounded-lg bg-white shadow-sm"
-                                    onDragOver={onDragOver}
-                                    onDrop={(e) => onDropToStage(e, stage.id)}
-                                >
-                                    <div className="border-b border-gray-100 p-4">
-                                        <div className="flex items-center justify-between gap-2">
-                                            <div className="text-sm font-semibold text-gray-800">{stage.name}</div>
+                {!selectedPipeline ? (
+                    <Card>
+                        <p className="text-surface-500 text-center py-8">No hay pipelines activos.</p>
+                    </Card>
+                ) : (
+                    <div className="flex gap-6 overflow-x-auto pb-4 items-start">
+                        {stages.map((stage) => (
+                            <div
+                                key={stage.id}
+                                className="flex-shrink-0 w-80 bg-surface-100/50 border border-surface-200 rounded-xl overflow-hidden flex flex-col max-h-[75vh] transition-colors"
+                                onDragOver={onDragOver}
+                                onDragEnter={onDragEnter}
+                                onDragLeave={onDragLeave}
+                                onDrop={(e) => onDropToStage(e, stage.id)}
+                            >
+                                <div className="p-4 bg-surface-100 border-b border-surface-200">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div className="text-sm font-semibold text-surface-800 uppercase tracking-wider">{stage.name}</div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="bg-white text-surface-600 text-xs font-medium px-2.5 py-0.5 rounded-full border border-surface-200">
+                                                {(grouped[stage.id] ?? []).length}
+                                            </span>
                                             {stage.is_won ? (
-                                                <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-700">Ganado</span>
+                                                <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-700 font-medium">Ganado</span>
                                             ) : null}
                                         </div>
                                     </div>
-                                    <div className="space-y-3 p-4">
-                                        {(grouped[stage.id] ?? []).map((lead) => (
-                                            <div
-                                                key={lead.id}
-                                                className="rounded-md border p-3"
-                                                draggable={lead.status !== 'won'}
-                                                onDragStart={(e) => onDragStart(e, lead.id)}
-                                            >
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <Link className="text-sm font-medium text-gray-900 hover:underline" href={route('crm.leads.show', lead.id)}>
-                                                        {leadTitle(lead)}
-                                                    </Link>
-                                                    <span className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700">#{lead.id}</span>
-                                                </div>
-                                                <div className="mt-1 text-xs text-gray-600">{lead.student?.email ?? lead.email ?? '—'}</div>
-                                                <div className="mt-1 text-xs text-gray-600">{lead.student?.phone ?? lead.phone ?? '—'}</div>
-                                                <div className="mt-2">
-                                                    {lead.status === 'converting' ? (
-                                                        <span className="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-800">Convirtiendo</span>
-                                                    ) : null}
-                                                    {lead.status === 'conversion_failed' ? (
-                                                        <span className="rounded bg-red-100 px-2 py-1 text-xs text-red-700">Error</span>
-                                                    ) : null}
-                                                    {lead.status === 'won' ? (
-                                                        <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-700">Ganado</span>
-                                                    ) : null}
-                                                </div>
-
-                                                <div className="mt-3 grid grid-cols-1 gap-2">
-                                                    <select
-                                                        className="w-full rounded-md border-gray-300 text-sm shadow-sm"
-                                                        value={lead.stage_id}
-                                                        disabled={lead.status === 'won'}
-                                                        onChange={(e) =>
-                                                            moveLead({
-                                                                leadId: lead.id,
-                                                                pipelineId: selectedPipeline.id,
-                                                                stageId: Number(e.target.value),
-                                                            })
-                                                        }
-                                                    >
-                                                        {stages.map((s) => (
-                                                            <option key={s.id} value={s.id}>
-                                                                {s.name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-
-                                                    <select
-                                                        className="w-full rounded-md border-gray-300 text-sm shadow-sm"
-                                                        value={lead.pipeline_id}
-                                                        disabled={lead.status === 'won'}
-                                                        onChange={(e) => moveLeadToOtherPipeline(lead.id, e.target.value)}
-                                                    >
-                                                        {(pipelines ?? []).map((p) => (
-                                                            <option key={p.id} value={p.id}>
-                                                                {p.name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        ))}
-                                        {(grouped[stage.id] ?? []).length === 0 ? (
-                                            <div className="text-sm text-gray-500">Sin leads</div>
-                                        ) : null}
-                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                                <div className="p-3 overflow-y-auto space-y-3 flex-1 min-h-[100px]">
+                                    {(grouped[stage.id] ?? []).map((lead) => (
+                                        <div
+                                            key={lead.id}
+                                            className="bg-white rounded-lg p-4 shadow-sm border border-surface-200 cursor-grab active:cursor-grabbing hover:border-primary-300 hover:shadow-md transition-all group"
+                                            draggable={lead.status !== 'won'}
+                                            onDragStart={(e) => onDragStart(e, lead.id)}
+                                        >
+                                            <div className="flex items-start justify-between gap-3 mb-2">
+                                                <Link className="text-sm font-semibold text-surface-900 hover:text-primary-600 transition-colors" href={route('crm.leads.show', lead.id)}>
+                                                    {leadTitle(lead)}
+                                                </Link>
+                                                <span className="text-xs font-medium text-surface-400">#{lead.id}</span>
+                                            </div>
+                                            <div className="text-xs text-surface-500 mb-1 truncate" title={lead.student?.email ?? lead.email}>{lead.student?.email ?? lead.email ?? '—'}</div>
+                                            <div className="text-xs text-surface-500 mb-3">{lead.student?.phone ?? lead.phone ?? '—'}</div>
+                                            
+                                            <div className="flex flex-wrap gap-2 mb-3">
+                                                {lead.status === 'converting' && (
+                                                    <span className="rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 border border-yellow-200">Convirtiendo</span>
+                                                )}
+                                                {lead.status === 'conversion_failed' && (
+                                                    <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 border border-red-200">Error</span>
+                                                )}
+                                                {lead.status === 'won' && (
+                                                    <span className="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 border border-green-200">Ganado</span>
+                                                )}
+                                            </div>
+
+                                            <div className="grid grid-cols-1 gap-2 pt-3 border-t border-surface-100 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <SelectInput
+                                                    className="w-full text-xs py-1"
+                                                    value={lead.stage_id}
+                                                    disabled={lead.status === 'won'}
+                                                    onChange={(e) =>
+                                                        moveLead({
+                                                            leadId: lead.id,
+                                                            pipelineId: selectedPipeline.id,
+                                                            stageId: Number(e.target.value),
+                                                        })
+                                                    }
+                                                >
+                                                    {stages.map((s) => (
+                                                        <option key={s.id} value={s.id}>
+                                                            {s.name}
+                                                        </option>
+                                                    ))}
+                                                </SelectInput>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {(grouped[stage.id] ?? []).length === 0 ? (
+                                        <div className="text-sm text-surface-400 text-center py-6 border-2 border-dashed border-surface-200 rounded-lg">Arrastra un lead aquí</div>
+                                    ) : null}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            {conversion.open ? (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                    <div className="w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-lg">
-                        <div className="border-b border-gray-100 p-4">
-                            <div className="text-sm font-semibold text-gray-900">Confirmar conversión</div>
-                            <div className="mt-1 text-sm text-gray-600">
-                                Lead: {leadTitle(conversion.lead)} · Curso: {coursesById?.[String(conversion.lead?.course_id)]?.fullname ?? '—'}
-                            </div>
-                        </div>
-                        <div className="space-y-4 p-4">
-                            {conversion.loading ? <div className="text-sm text-gray-700">Preparando…</div> : null}
-                            {conversion.errors?.general ? <div className="text-sm text-red-600">{conversion.errors.general}</div> : null}
+            <Modal show={conversion.open} onClose={closeConversion} maxWidth="2xl">
+                <div className="p-6">
+                    <div className="border-b border-surface-100 pb-4 mb-4">
+                        <h2 className="text-lg font-semibold text-surface-900">Confirmar Conversión a Estudiante</h2>
+                        <p className="mt-1 text-sm text-surface-500">
+                            Lead: <span className="font-medium text-surface-800">{leadTitle(conversion.lead)}</span> · Curso: <span className="font-medium text-surface-800">{coursesById?.[String(conversion.lead?.course_id)]?.fullname ?? '—'}</span>
+                        </p>
+                    </div>
+                    
+                    <div className="space-y-4">
+                        {conversion.loading ? <div className="text-sm text-primary-600 font-medium animate-pulse">Preparando datos de matriculación...</div> : null}
+                        {conversion.errors?.general ? <div className="p-3 rounded-lg bg-red-50 text-sm text-red-600 border border-red-200">{conversion.errors.general}</div> : null}
 
-                            {conversion.preview?.plan ? (
-                                <div className="rounded-md border bg-gray-50 p-3 text-sm text-gray-800">
-                                    Al confirmar, se matricula en <span className="font-medium">{conversion.preview.course?.fullname ?? '—'}</span>
-                                    {conversion.preview.cohort ? (
-                                        <>
-                                            {' '}
-                                            - Cohorte <span className="font-medium">{conversion.preview.cohort.name}</span>
-                                        </>
-                                    ) : null}
-                                    , y se generará un plan de pagos por un total de <span className="font-medium">{conversion.preview.plan.total}</span>.
-                                </div>
-                            ) : null}
-
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <div>
-                                    <InputLabel value="Nombres" />
-                                    <TextInput
-                                        className="mt-1 block w-full"
-                                        disabled={conversion.use_student && (conversion.preview?.student?.first_name ?? '') !== ''}
-                                        value={conversion.data.first_name}
-                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, first_name: e.target.value } }))}
-                                    />
-                                    <InputError className="mt-2" message={conversion.errors.first_name} />
-                                </div>
-                                <div>
-                                    <InputLabel value="Apellidos" />
-                                    <TextInput
-                                        className="mt-1 block w-full"
-                                        disabled={conversion.use_student && (conversion.preview?.student?.last_name ?? '') !== ''}
-                                        value={conversion.data.last_name}
-                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, last_name: e.target.value } }))}
-                                    />
-                                    <InputError className="mt-2" message={conversion.errors.last_name} />
-                                </div>
-                                <div>
-                                    <InputLabel value="Email" />
-                                    <TextInput
-                                        className="mt-1 block w-full"
-                                        disabled={conversion.use_student && (conversion.preview?.student?.email ?? '') !== ''}
-                                        value={conversion.data.email}
-                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, email: e.target.value } }))}
-                                    />
-                                    <InputError className="mt-2" message={conversion.errors.email} />
-                                </div>
-                                <div>
-                                    <InputLabel value="Teléfono (opcional)" />
-                                    <TextInput
-                                        className="mt-1 block w-full"
-                                        disabled={conversion.use_student && (conversion.preview?.student?.phone ?? '') !== ''}
-                                        value={conversion.data.phone}
-                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, phone: e.target.value } }))}
-                                    />
-                                    <InputError className="mt-2" message={conversion.errors.phone} />
-                                </div>
-                                <div className="md:col-span-2">
-                                    <InputLabel value="Documento (DNI)" />
-                                    <TextInput
-                                        className="mt-1 block w-full"
-                                        disabled={conversion.use_student && (conversion.preview?.student?.identity_doc ?? '') !== ''}
-                                        value={conversion.data.identity_doc}
-                                        onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, identity_doc: e.target.value } }))}
-                                    />
-                                    <InputError className="mt-2" message={conversion.errors.identity_doc} />
-                                </div>
+                        {conversion.preview?.plan ? (
+                            <div className="rounded-lg border border-primary-100 bg-primary-50 p-4 text-sm text-primary-800 shadow-sm">
+                                Al confirmar, el lead será matriculado en <strong className="font-semibold">{conversion.preview.course?.fullname ?? '—'}</strong>
+                                {conversion.preview.cohort ? (
+                                    <> - Cohorte <strong className="font-semibold">{conversion.preview.cohort.name}</strong></>
+                                ) : null}
+                                , y se generará automáticamente su plan de pagos por un total de <strong className="font-semibold">{conversion.preview.plan.total}</strong>.
                             </div>
-                        </div>
-                        <div className="flex justify-end gap-3 border-t border-gray-100 p-4">
-                            <button type="button" className="rounded-md border px-3 py-2 text-sm" onClick={closeConversion}>
-                                Cancelar
-                            </button>
-                            <PrimaryButton
-                                onClick={() => {
-                                    setConversion((s) => ({ ...s, loading: true }));
-                                    axios
-                                        .post(route('crm.leads.conversion.confirm', conversion.lead.id), {
-                                            pipeline_id: conversion.pipeline_id,
-                                            stage_id: conversion.stage_id,
-                                            ...conversion.data,
-                                        })
-                                        .then(() => {
-                                            closeConversion();
-                                            router.reload({ preserveScroll: true });
-                                        })
-                                        .catch((e) => {
-                                            const errors = e?.response?.data?.errors ?? {};
-                                            const message = e?.response?.data?.message ?? null;
-                                            setConversion((s) => ({
-                                                ...s,
-                                                errors: {
-                                                    ...errors,
-                                                    ...(message ? { general: message } : {}),
-                                                },
-                                            }));
-                                        })
-                                        .finally(() => setConversion((s) => ({ ...s, loading: false })));
-                                }}
-                                disabled={conversion.loading}
-                            >
-                                {conversion.loading ? 'Procesando…' : 'Confirmar'}
-                            </PrimaryButton>
+                        ) : null}
+
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
+                            <div>
+                                <InputLabel value="Nombres" />
+                                <TextInput
+                                    className="mt-1 block w-full"
+                                    disabled={conversion.use_student && (conversion.preview?.student?.first_name ?? '') !== ''}
+                                    value={conversion.data.first_name}
+                                    onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, first_name: e.target.value } }))}
+                                />
+                                <InputError className="mt-2" message={conversion.errors.first_name} />
+                            </div>
+                            <div>
+                                <InputLabel value="Apellidos" />
+                                <TextInput
+                                    className="mt-1 block w-full"
+                                    disabled={conversion.use_student && (conversion.preview?.student?.last_name ?? '') !== ''}
+                                    value={conversion.data.last_name}
+                                    onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, last_name: e.target.value } }))}
+                                />
+                                <InputError className="mt-2" message={conversion.errors.last_name} />
+                            </div>
+                            <div>
+                                <InputLabel value="Email" />
+                                <TextInput
+                                    className="mt-1 block w-full"
+                                    disabled={conversion.use_student && (conversion.preview?.student?.email ?? '') !== ''}
+                                    value={conversion.data.email}
+                                    onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, email: e.target.value } }))}
+                                />
+                                <InputError className="mt-2" message={conversion.errors.email} />
+                            </div>
+                            <div>
+                                <InputLabel value="Teléfono (opcional)" />
+                                <TextInput
+                                    className="mt-1 block w-full"
+                                    disabled={conversion.use_student && (conversion.preview?.student?.phone ?? '') !== ''}
+                                    value={conversion.data.phone}
+                                    onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, phone: e.target.value } }))}
+                                />
+                                <InputError className="mt-2" message={conversion.errors.phone} />
+                            </div>
+                            <div className="md:col-span-2">
+                                <InputLabel value="Documento (DNI)" />
+                                <TextInput
+                                    className="mt-1 block w-full"
+                                    disabled={conversion.use_student && (conversion.preview?.student?.identity_doc ?? '') !== ''}
+                                    value={conversion.data.identity_doc}
+                                    onChange={(e) => setConversion((s) => ({ ...s, data: { ...s.data, identity_doc: e.target.value } }))}
+                                />
+                                <InputError className="mt-2" message={conversion.errors.identity_doc} />
+                            </div>
                         </div>
                     </div>
+                    
+                    <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-surface-100">
+                        <button type="button" className="btn-secondary" onClick={closeConversion}>
+                            Cancelar
+                        </button>
+                        <PrimaryButton
+                            onClick={() => {
+                                setConversion((s) => ({ ...s, loading: true }));
+                                axios
+                                    .post(route('crm.leads.conversion.confirm', conversion.lead.id), {
+                                        pipeline_id: conversion.pipeline_id,
+                                        stage_id: conversion.stage_id,
+                                        ...conversion.data,
+                                    })
+                                    .then(() => {
+                                        closeConversion();
+                                        router.reload({ preserveScroll: true });
+                                    })
+                                    .catch((e) => {
+                                        const errors = e?.response?.data?.errors ?? {};
+                                        const message = e?.response?.data?.message ?? null;
+                                        setConversion((s) => ({
+                                            ...s,
+                                            errors: {
+                                                ...errors,
+                                                ...(message ? { general: message } : {}),
+                                            },
+                                        }));
+                                    })
+                                    .finally(() => setConversion((s) => ({ ...s, loading: false })));
+                            }}
+                            disabled={conversion.loading}
+                        >
+                            {conversion.loading ? 'Procesando...' : 'Confirmar Conversión'}
+                        </PrimaryButton>
+                    </div>
                 </div>
-            ) : null}
+            </Modal>
         </AuthenticatedLayout>
     );
 }

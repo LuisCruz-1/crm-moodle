@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 
-export default forwardRef(function TextInput(
-    { type = 'text', className = '', isFocused = false, ...props },
+export default forwardRef(function SelectInput(
+    { className = '', isFocused = false, children, ...props },
     ref,
 ) {
     const localRef = useRef(null);
@@ -17,11 +17,12 @@ export default forwardRef(function TextInput(
     }, [isFocused]);
 
     return (
-        <input
+        <select
             {...props}
-            type={type}
             className={'input-field ' + className}
             ref={localRef}
-        />
+        >
+            {children}
+        </select>
     );
 });

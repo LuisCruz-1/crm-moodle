@@ -8,6 +8,8 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
+import Card from '@/Components/Card';
+import { UsersIcon, PencilSquareIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 export default function Index({ users, roles }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -72,63 +74,81 @@ export default function Index({ users, roles }) {
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Configuración del Sistema</h2>}>
+        <AuthenticatedLayout header="Configuración · Usuarios">
             <Head title="Configuración - Usuarios" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <SettingsSubnav />
-                        
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-medium text-gray-900">Usuarios de la Plataforma (Staff)</h3>
-                            <button onClick={openCreateModal} className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
-                                Nuevo Usuario
-                            </button>
+            <div className="space-y-6">
+                <SettingsSubnav />
+                
+                <Card className="p-0 overflow-hidden border border-surface-200">
+                    <div className="p-6 border-b border-surface-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center space-x-3">
+                            <div className="bg-primary-100 p-2 rounded-lg">
+                                <UsersIcon className="h-6 w-6 text-primary-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-surface-900">Usuarios de la Plataforma (Staff)</h3>
+                                <p className="mt-1 text-sm text-surface-500">
+                                    Administra las cuentas del personal que accede al sistema CRM.
+                                </p>
+                            </div>
                         </div>
+                        <PrimaryButton onClick={openCreateModal} className="shrink-0 flex items-center gap-1.5">
+                            <PlusIcon className="h-5 w-5" />
+                            <span>Nuevo Usuario</span>
+                        </PrimaryButton>
+                    </div>
 
-                        <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-                            <table className="min-w-full divide-y divide-gray-300">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">Nombre</th>
-                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
-                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Roles</th>
-                                        <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6"><span className="sr-only">Acciones</span></th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200 bg-white">
-                                    {users.map((user) => (
-                                        <tr key={user.id}>
-                                            <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">{user.name}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{user.email}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-surface-200">
+                            <thead className="bg-surface-50">
+                                <tr>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-surface-500 uppercase tracking-wider">Nombre</th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-surface-500 uppercase tracking-wider">Email</th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-surface-500 uppercase tracking-wider">Roles</th>
+                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-surface-500 uppercase tracking-wider">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-surface-100">
+                                {users.map((user) => (
+                                    <tr key={user.id} className="hover:bg-surface-50 transition-colors">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-surface-900">{user.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-surface-600">{user.email}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-surface-500">
+                                            <div className="flex flex-wrap gap-1.5">
                                                 {user.roles.map(role => (
-                                                    <span key={role.id} className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 mr-2">
+                                                    <span key={role.id} className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 border border-blue-200">
                                                         {role.name}
                                                     </span>
                                                 ))}
-                                            </td>
-                                            <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                                <button onClick={() => openEditModal(user)} className="text-indigo-600 hover:text-indigo-900 mr-4">Editar</button>
-                                                <button onClick={() => deleteUser(user)} className="text-red-600 hover:text-red-900">Eliminar</button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button onClick={() => openEditModal(user)} className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-900 p-2 rounded-lg hover:bg-primary-50 transition-colors" title="Editar">
+                                                    <PencilSquareIcon className="h-5 w-5" />
+                                                </button>
+                                                <button onClick={() => deleteUser(user)} className="inline-flex items-center gap-1 text-red-600 hover:text-red-900 p-2 rounded-lg hover:bg-red-50 transition-colors" title="Eliminar">
+                                                    <TrashIcon className="h-5 w-5" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
-                </div>
+                </Card>
             </div>
 
             <Modal show={isModalOpen} onClose={closeModals}>
                 <form onSubmit={submit} className="p-6">
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">
+                    <h2 className="text-xl font-semibold text-surface-900 mb-6 flex items-center gap-2">
+                        <UsersIcon className="h-6 w-6 text-primary-600" />
                         {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
                     </h2>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         <div>
                             <InputLabel htmlFor="name" value="Nombre" />
                             <TextInput
@@ -166,18 +186,18 @@ export default function Index({ users, roles }) {
                         </div>
 
                         <div>
-                            <InputLabel value="Roles Asignados" />
-                            <div className="mt-2 space-y-2">
+                            <InputLabel value="Roles Asignados" className="mb-3" />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-surface-50 p-4 rounded-xl border border-surface-200">
                                 {roles.map(role => (
-                                    <div key={role.id} className="flex items-center">
+                                    <div key={role.id} className="flex items-center p-2 hover:bg-white rounded-lg transition-colors">
                                         <input
                                             id={`role-${role.id}`}
                                             type="checkbox"
-                                            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                            className="h-4 w-4 rounded border-surface-300 text-primary-600 focus:ring-primary-600"
                                             checked={data.roles.includes(role.name)}
                                             onChange={(e) => handleRoleChange(e, role.name)}
                                         />
-                                        <label htmlFor={`role-${role.id}`} className="ml-2 block text-sm text-gray-900">
+                                        <label htmlFor={`role-${role.id}`} className="ml-3 block text-sm font-medium text-surface-900 cursor-pointer">
                                             {role.name}
                                         </label>
                                     </div>
@@ -187,10 +207,10 @@ export default function Index({ users, roles }) {
                         </div>
                     </div>
 
-                    <div className="mt-6 flex justify-end">
+                    <div className="mt-8 flex justify-end gap-3 pt-4 border-t border-surface-100">
                         <SecondaryButton onClick={closeModals}>Cancelar</SecondaryButton>
-                        <PrimaryButton className="ms-3" disabled={processing}>
-                            Guardar
+                        <PrimaryButton disabled={processing}>
+                            Guardar Cambios
                         </PrimaryButton>
                     </div>
                 </form>

@@ -1,260 +1,171 @@
+import { useState } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { 
+    ChartPieIcon, 
+    UsersIcon, 
+    AcademicCapIcon, 
+    CurrencyDollarIcon, 
+    EnvelopeIcon, 
+    Cog6ToothIcon, 
+    Bars3Icon, 
+    XMarkIcon 
+} from '@heroicons/react/24/outline';
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
+    const { global } = usePage().props;
+    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
-    const [showingNavigationDropdown, setShowingNavigationDropdown] =
-        useState(false);
+    const navigation = [
+        { name: 'Dashboard', href: route('dashboard'), current: route().current('dashboard'), icon: ChartPieIcon },
+        { name: 'CRM & Ventas', href: route('leads.index'), current: route().current('leads.*'), icon: UsersIcon },
+        { name: 'Académico', href: route('academics.courses.index'), current: route().current('academics.*'), icon: AcademicCapIcon },
+        { name: 'Estudiantes', href: route('students.index'), current: route().current('students.*'), icon: UsersIcon },
+        { name: 'Finanzas', href: route('finance.installments.index'), current: route().current('finance.*'), icon: CurrencyDollarIcon },
+        { name: 'Reportes', href: route('reports.index'), current: route().current('reports.*'), icon: ChartPieIcon },
+        { name: 'Comunicaciones', href: route('comms.templates.index'), current: route().current('comms.*'), icon: EnvelopeIcon },
+        { name: 'Configuración', href: route('settings.moodle.index'), current: route().current('settings.*'), icon: Cog6ToothIcon },
+    ];
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <nav className="border-b border-gray-100 bg-white">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 justify-between">
-                        <div className="flex">
-                            <div className="flex shrink-0 items-center">
-                                <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
-                                </Link>
-                            </div>
+        <div className="min-h-screen bg-surface-50 flex flex-col md:flex-row">
+            {/* Sidebar for Desktop */}
+            <aside className="hidden md:flex w-64 flex-col bg-white border-r border-surface-200 shadow-sm z-10 fixed h-full">
+                <div className="h-16 flex items-center px-6 border-b border-surface-100">
+                    <Link href="/">
+                        <ApplicationLogo className="block h-9 w-auto text-primary-600" />
+                    </Link>
+                </div>
+                <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                    {navigation.map((item) => (
+                        <Link
+                            key={item.name}
+                            href={item.href}
+                            className={`group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                                item.current
+                                    ? 'bg-primary-50 text-primary-700'
+                                    : 'text-surface-600 hover:bg-surface-50 hover:text-surface-900'
+                            }`}
+                        >
+                            <item.icon
+                                className={`flex-shrink-0 -ml-1 mr-3 h-5 w-5 transition-colors ${
+                                    item.current ? 'text-primary-600' : 'text-surface-400 group-hover:text-surface-500'
+                                }`}
+                                aria-hidden="true"
+                            />
+                            {item.name}
+                        </Link>
+                    ))}
+                </nav>
+                <div className="p-4 border-t border-surface-100">
+                    <Dropdown>
+                        <Dropdown.Trigger>
+                            <button className="flex items-center w-full px-3 py-2 text-sm font-medium text-surface-700 rounded-lg hover:bg-surface-50 transition-colors focus:outline-none">
+                                <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold mr-3">
+                                    {user.name.charAt(0)}
+                                </div>
+                                <div className="flex-1 text-left truncate">
+                                    <p className="truncate font-semibold">{user.name}</p>
+                                    <p className="truncate text-xs text-surface-500">{user.email}</p>
+                                </div>
+                            </button>
+                        </Dropdown.Trigger>
+                        <Dropdown.Content align="top-left" width="48">
+                            <Dropdown.Link href={route('profile.edit')}>Perfil</Dropdown.Link>
+                            <Dropdown.Link href={route('logout')} method="post" as="button">
+                                Cerrar Sesión
+                            </Dropdown.Link>
+                        </Dropdown.Content>
+                    </Dropdown>
+                </div>
+            </aside>
 
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink
-                                    href={route('dashboard')}
-                                    active={route().current('dashboard')}
-                                >
-                                    Dashboard
-                                </NavLink>
-                                <NavLink
-                                    href={route('crm.kanban.index')}
-                                    active={route().current('crm.kanban.index')}
-                                >
-                                    CRM
-                                </NavLink>
-                                <NavLink
-                                    href={route('academics.courses.index')}
-                                    active={route().current('academics.*')}
-                                >
-                                    Académico
-                                </NavLink>
-                                <NavLink
-                                    href={route('students.index')}
-                                    active={route().current('students.*')}
-                                >
-                                    Estudiantes
-                                </NavLink>
-                                <NavLink
-                                    href={route('finance.installments.index')}
-                                    active={route().current('finance.*')}
-                                >
-                                    Finanzas
-                                </NavLink>
-                                <NavLink
-                                    href={route('reports.index')}
-                                    active={route().current('reports.*')}
-                                >
-                                    Reportes
-                                </NavLink>
-                                <NavLink
-                                    href={route('comms.templates.index')}
-                                    active={route().current('comms.*')}
-                                >
-                                    Comunicaciones
-                                </NavLink>
-                                <NavLink
-                                    href={route('settings.moodle.index')}
-                                    active={route().current('settings.*')}
-                                >
-                                    Configuración
-                                </NavLink>
-                            </div>
-                        </div>
+            {/* Mobile Header */}
+            <div className="md:hidden bg-white border-b border-surface-200 flex items-center justify-between px-4 h-16 sticky top-0 z-20">
+                <Link href="/">
+                    <ApplicationLogo className="block h-8 w-auto text-primary-600" />
+                </Link>
+                <button
+                    onClick={() => setShowingNavigationDropdown(!showingNavigationDropdown)}
+                    className="p-2 rounded-md text-surface-400 hover:text-surface-500 hover:bg-surface-100 focus:outline-none"
+                >
+                    {showingNavigationDropdown ? (
+                        <XMarkIcon className="h-6 w-6" />
+                    ) : (
+                        <Bars3Icon className="h-6 w-6" />
+                    )}
+                </button>
+            </div>
 
-                        <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                            <div className="relative ms-3">
-                                <Dropdown>
-                                    <Dropdown.Trigger>
-                                        <span className="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
-                                            >
-                                                {user.name}
-
-                                                <svg
-                                                    className="-me-0.5 ms-2 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </Dropdown.Trigger>
-
-                                    <Dropdown.Content>
-                                        <Dropdown.Link
-                                            href={route('profile.edit')}
-                                        >
-                                            Profile
-                                        </Dropdown.Link>
-                                        <Dropdown.Link
-                                            href={route('logout')}
-                                            method="post"
-                                            as="button"
-                                        >
-                                            Log Out
-                                        </Dropdown.Link>
-                                    </Dropdown.Content>
-                                </Dropdown>
-                            </div>
-                        </div>
-
-                        <div className="-me-2 flex items-center sm:hidden">
-                            <button
-                                onClick={() =>
-                                    setShowingNavigationDropdown(
-                                        (previousState) => !previousState,
-                                    )
-                                }
-                                className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
-                            >
-                                <svg
-                                    className="h-6 w-6"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        className={
-                                            !showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
-                                        }
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                    <path
-                                        className={
-                                            showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
-                                        }
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
+            {/* Mobile Menu */}
+            {showingNavigationDropdown && (
+                <div className="md:hidden fixed inset-0 z-10 bg-surface-800/50 backdrop-blur-sm" onClick={() => setShowingNavigationDropdown(false)}>
+                    <div className="fixed inset-y-0 right-0 w-64 bg-white shadow-xl flex flex-col" onClick={e => e.stopPropagation()}>
+                        <div className="h-16 flex items-center px-6 border-b border-surface-100 justify-between">
+                            <span className="font-semibold text-surface-900">Menú</span>
+                            <button onClick={() => setShowingNavigationDropdown(false)} className="text-surface-500">
+                                <XMarkIcon className="h-6 w-6" />
                             </button>
                         </div>
-                    </div>
-                </div>
-
-                <div
-                    className={
-                        (showingNavigationDropdown ? 'block' : 'hidden') +
-                        ' sm:hidden'
-                    }
-                >
-                    <div className="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
-                        >
-                            Dashboard
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            href={route('crm.kanban.index')}
-                            active={route().current('crm.kanban.index')}
-                        >
-                            CRM
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            href={route('academics.courses.index')}
-                            active={route().current('academics.*')}
-                        >
-                            Académico
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            href={route('students.index')}
-                            active={route().current('students.*')}
-                        >
-                            Estudiantes
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            href={route('finance.inbox.index')}
-                            active={route().current('finance.*')}
-                        >
-                            Finanzas
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            href={route('reports.index')}
-                            active={route().current('reports.*')}
-                        >
-                            Reportes
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            href={route('comms.templates.index')}
-                            active={route().current('comms.*')}
-                        >
-                            Comunicaciones
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            href={route('settings.moodle.index')}
-                            active={route().current('settings.*')}
-                        >
-                            Configuración
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <div className="border-t border-gray-200 pb-1 pt-4">
-                        <div className="px-4">
-                            <div className="text-base font-medium text-gray-800">
-                                {user.name}
+                        <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+                            {navigation.map((item) => (
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className={`flex items-center px-3 py-2 text-base font-medium rounded-md ${
+                                        item.current
+                                            ? 'bg-primary-50 text-primary-700'
+                                            : 'text-surface-600 hover:bg-surface-50 hover:text-surface-900'
+                                    }`}
+                                >
+                                    <item.icon className={`mr-4 h-6 w-6 ${item.current ? 'text-primary-600' : 'text-surface-400'}`} />
+                                    {item.name}
+                                </Link>
+                            ))}
+                        </nav>
+                        <div className="p-4 border-t border-surface-100 bg-surface-50">
+                            <div className="flex items-center px-3 mb-4">
+                                <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold mr-3">
+                                    {user.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <div className="font-medium text-surface-800">{user.name}</div>
+                                    <div className="text-sm font-medium text-surface-500">{user.email}</div>
+                                </div>
                             </div>
-                            <div className="text-sm font-medium text-gray-500">
-                                {user.email}
+                            <div className="space-y-1">
+                                <Link href={route('profile.edit')} className="block px-3 py-2 text-base font-medium text-surface-600 hover:text-surface-800 hover:bg-surface-100 rounded-md">Perfil</Link>
+                                <Link href={route('logout')} method="post" as="button" className="block w-full text-left px-3 py-2 text-base font-medium text-surface-600 hover:text-surface-800 hover:bg-surface-100 rounded-md">Cerrar Sesión</Link>
                             </div>
-                        </div>
-
-                        <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>
-                                Profile
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                method="post"
-                                href={route('logout')}
-                                as="button"
-                            >
-                                Log Out
-                            </ResponsiveNavLink>
                         </div>
                     </div>
                 </div>
-            </nav>
-
-            {header && (
-                <header className="bg-white shadow">
-                    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                        {header}
-                    </div>
-                </header>
             )}
 
-            <main>{children}</main>
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col md:ml-64 min-h-screen">
+                {header && (
+                    <header className="bg-white shadow-sm sticky top-0 z-10 hidden md:block border-b border-surface-100">
+                        <div className="mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                            <div className="font-semibold text-lg text-surface-800">
+                                {header}
+                            </div>
+                        </div>
+                    </header>
+                )}
+                {/* Mobile header title */}
+                {header && (
+                    <div className="md:hidden bg-white shadow-sm px-4 py-3 border-b border-surface-100">
+                        <div className="font-semibold text-lg text-surface-800">{header}</div>
+                    </div>
+                )}
+
+                <main className="flex-1 p-4 sm:p-6 lg:p-8">
+                    {children}
+                </main>
+            </div>
         </div>
     );
 }

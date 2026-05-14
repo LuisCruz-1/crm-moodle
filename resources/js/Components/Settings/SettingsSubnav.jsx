@@ -1,12 +1,10 @@
 import { Link, usePage } from '@inertiajs/react';
+import Card from '@/Components/Card';
 import {
     Cog6ToothIcon,
     UsersIcon,
     ShieldCheckIcon,
     AdjustmentsHorizontalIcon,
-    BanknotesIcon,
-    CreditCardIcon,
-    CurrencyDollarIcon,
     PhotoIcon,
     ClockIcon
 } from '@heroicons/react/24/outline';
@@ -54,26 +52,28 @@ export default function SettingsSubnav() {
     ];
 
     return (
-        <nav className="flex space-x-4 border-b border-gray-200 pb-4 mb-6 overflow-x-auto" aria-label="Tabs">
-            {navigation.map((item) => (
-                <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`
-                        ${item.current
-                            ? 'bg-indigo-100 text-indigo-700'
-                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                        } flex items-center rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
-                    `}
-                    aria-current={item.current ? 'page' : undefined}
-                >
-                    <item.icon
-                        className={`${item.current ? 'text-indigo-700' : 'text-gray-400 group-hover:text-gray-500'} -ml-0.5 mr-2 h-5 w-5`}
-                        aria-hidden="true"
-                    />
-                    {item.name}
-                </Link>
-            ))}
-        </nav>
+        <Card className="!p-0 overflow-hidden mb-6">
+            <nav className="flex space-x-1 border-b border-gray-200 px-4 pt-2 bg-gray-50/50 overflow-x-auto scrollbar-hide" aria-label="Tabs">
+                {navigation.map((item) => (
+                    <Link
+                        key={item.name}
+                        href={item.href}
+                        className={`
+                            ${item.current
+                                ? 'border-primary-500 text-primary-600'
+                                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                            } flex items-center border-b-2 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors
+                        `}
+                        aria-current={item.current ? 'page' : undefined}
+                    >
+                        <item.icon
+                            className={`${item.current ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-500'} -ml-0.5 mr-2 h-5 w-5`}
+                            aria-hidden="true"
+                        />
+                        {item.name}
+                    </Link>
+                ))}
+            </nav>
+        </Card>
     );
 }

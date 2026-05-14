@@ -1,10 +1,14 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
+import DangerButton from '@/Components/DangerButton';
 import TextInput from '@/Components/TextInput';
 import CrmSubnav from '@/Components/CrmSubnav';
+import Card from '@/Components/Card';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm } from '@inertiajs/react';
+import { PlusIcon, ArrowsUpDownIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 function moveItem(list, fromIndex, toIndex) {
     const next = [...list];
@@ -29,7 +33,9 @@ function PipelineCard({ pipeline }) {
     };
 
     const deletePipeline = () => {
-        router.delete(route('crm.pipelines.destroy', pipeline.id), { preserveScroll: true });
+        if(confirm('¿Seguro que deseas eliminar este pipeline?')) {
+            router.delete(route('crm.pipelines.destroy', pipeline.id), { preserveScroll: true });
+        }
     };
 
     const submitAddStage = (e) => {
@@ -45,7 +51,9 @@ function PipelineCard({ pipeline }) {
     };
 
     const deleteStage = (stageId) => {
-        router.delete(route('crm.pipelines.stages.destroy', [pipeline.id, stageId]), { preserveScroll: true });
+        if(confirm('¿Seguro que deseas eliminar esta etapa?')) {
+            router.delete(route('crm.pipelines.stages.destroy', [pipeline.id, stageId]), { preserveScroll: true });
+        }
     };
 
     const reorderStages = (stages, fromIndex, toIndex) => {
@@ -78,8 +86,8 @@ function PipelineCard({ pipeline }) {
     };
 
     return (
-        <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-            <div className="border-b border-gray-100 p-6">
+        <Card className="!p-0 mb-6">
+            <div className="border-b border-gray-100 p-6 bg-gray-50/30">
                 <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                     <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
                         <div className="md:col-span-2">
@@ -92,26 +100,29 @@ function PipelineCard({ pipeline }) {
                         </div>
                     </div>
                     <div className="flex gap-3">
-                        <button type="button" className="rounded-md border px-3 py-2 text-sm" onClick={deletePipeline}>
+                        <DangerButton type="button" onClick={deletePipeline}>
                             Eliminar
-                        </button>
+                        </DangerButton>
                     </div>
                 </div>
             </div>
 
             <div className="p-6">
-                <div className="mb-4 text-sm font-medium text-gray-700">Etapas</div>
-                <div className="space-y-2">
+                <div className="mb-4 text-sm font-medium text-gray-700">Etapas del embudo</div>
+                <div className="space-y-3">
                     {(pipeline.stages ?? []).map((stage, idx) => (
                         <div
                             key={stage.id}
-                            className="flex flex-col gap-2 rounded-md border p-3 md:flex-row md:items-center"
+                            className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md md:flex-row md:items-center"
                             draggable
                             onDragStart={(e) => onStageDragStart(e, stage.id)}
                             onDragOver={onStageDragOver}
                             onDrop={(e) => onStageDrop(e, pipeline.stages ?? [], stage.id)}
                         >
-                            <div className="flex flex-1 flex-col gap-2 md:flex-row md:items-center">
+                            <div className="flex items-center text-gray-400 cursor-move">
+                                <ArrowsUpDownIcon className="w-5 h-5" />
+                            </div>
+                            <div className="flex flex-1 flex-col gap-4 md:flex-row md:items-center">
                                 <TextInput
                                     className="block w-full md:max-w-md"
                                     defaultValue={stage.name}
@@ -124,9 +135,10 @@ function PipelineCard({ pipeline }) {
                                         })
                                     }
                                 />
-                                <label className="flex items-center gap-2 text-sm text-gray-700">
+                                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                                     <input
                                         type="checkbox"
+                                        className="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500"
                                         defaultChecked={!!stage.is_won}
                                         onChange={(e) =>
                                             updateStage(stage.id, {
@@ -139,9 +151,10 @@ function PipelineCard({ pipeline }) {
                                     />
                                     Ganado
                                 </label>
-                                <label className="flex items-center gap-2 text-sm text-gray-700">
+                                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                                     <input
                                         type="checkbox"
+                                        className="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500"
                                         defaultChecked={!!stage.is_active}
                                         onChange={(e) =>
                                             updateStage(stage.id, {
@@ -157,50 +170,55 @@ function PipelineCard({ pipeline }) {
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <button
+                                <SecondaryButton
                                     type="button"
-                                    className="rounded-md border px-3 py-2 text-sm disabled:opacity-50"
+                                    className="!px-2 !py-2"
                                     disabled={idx === 0}
                                     onClick={() => reorderStages(pipeline.stages ?? [], idx, idx - 1)}
                                 >
                                     ↑
-                                </button>
-                                <button
+                                </SecondaryButton>
+                                <SecondaryButton
                                     type="button"
-                                    className="rounded-md border px-3 py-2 text-sm disabled:opacity-50"
+                                    className="!px-2 !py-2"
                                     disabled={idx === (pipeline.stages?.length ?? 0) - 1}
                                     onClick={() => reorderStages(pipeline.stages ?? [], idx, idx + 1)}
                                 >
                                     ↓
-                                </button>
-                                <button type="button" className="rounded-md border px-3 py-2 text-sm" onClick={() => deleteStage(stage.id)}>
-                                    Eliminar
-                                </button>
+                                </SecondaryButton>
+                                <DangerButton type="button" className="!px-2 !py-2" onClick={() => deleteStage(stage.id)}>
+                                    <TrashIcon className="w-4 h-4" />
+                                </DangerButton>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="mt-6">
-                    <form onSubmit={submitAddStage} className="flex flex-col gap-3 md:flex-row md:items-end">
+                <div className="mt-6 border-t border-gray-100 pt-6">
+                    <form onSubmit={submitAddStage} className="flex flex-col gap-4 md:flex-row md:items-end">
                         <div className="flex-1">
                             <InputLabel value="Nueva etapa" />
-                            <TextInput className="mt-1 block w-full" value={addStage.data.name} onChange={(e) => addStage.setData('name', e.target.value)} />
+                            <TextInput className="mt-1 block w-full" placeholder="Ej. Contacto inicial" value={addStage.data.name} onChange={(e) => addStage.setData('name', e.target.value)} />
                             <InputError className="mt-2" message={addStage.errors.name} />
                         </div>
-                        <label className="flex items-center gap-2 text-sm text-gray-700">
-                            <input type="checkbox" checked={!!addStage.data.is_won} onChange={(e) => addStage.setData('is_won', e.target.checked)} />
-                            Ganado
-                        </label>
-                        <label className="flex items-center gap-2 text-sm text-gray-700">
-                            <input type="checkbox" checked={!!addStage.data.is_active} onChange={(e) => addStage.setData('is_active', e.target.checked)} />
-                            Activa
-                        </label>
-                        <PrimaryButton disabled={addStage.processing}>Agregar</PrimaryButton>
+                        <div className="flex gap-4 pb-2">
+                            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                <input type="checkbox" className="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500" checked={!!addStage.data.is_won} onChange={(e) => addStage.setData('is_won', e.target.checked)} />
+                                Ganado
+                            </label>
+                            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                <input type="checkbox" className="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500" checked={!!addStage.data.is_active} onChange={(e) => addStage.setData('is_active', e.target.checked)} />
+                                Activa
+                            </label>
+                        </div>
+                        <PrimaryButton disabled={addStage.processing} className="flex items-center gap-2">
+                            <PlusIcon className="w-5 h-5" />
+                            Agregar Etapa
+                        </PrimaryButton>
                     </form>
                 </div>
             </div>
-        </div>
+        </Card>
     );
 }
 
@@ -219,19 +237,22 @@ export default function Index({ pipelines }) {
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">CRM · Pipelines</h2>}>
+        <AuthenticatedLayout header="CRM · Pipelines">
             <Head title="CRM · Pipelines" />
 
-            <div className="py-12">
+            <div className="py-8">
                 <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
                     <CrmSubnav />
-                    <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">
+                    
+                    <Card>
+                        <h3 className="text-lg font-medium text-gray-900 mb-4">Crear nuevo Pipeline</h3>
                         <form onSubmit={submitCreatePipeline} className="grid grid-cols-1 gap-4 md:grid-cols-4">
                             <div className="md:col-span-2">
                                 <InputLabel htmlFor="pipeline_name" value="Nombre" />
                                 <TextInput
                                     id="pipeline_name"
                                     className="mt-1 block w-full"
+                                    placeholder="Ej. Ventas Q3"
                                     value={createPipeline.data.name}
                                     onChange={(e) => createPipeline.setData('name', e.target.value)}
                                 />
@@ -242,16 +263,20 @@ export default function Index({ pipelines }) {
                                 <TextInput
                                     id="pipeline_type"
                                     className="mt-1 block w-full"
+                                    placeholder="Ej. B2B"
                                     value={createPipeline.data.type}
                                     onChange={(e) => createPipeline.setData('type', e.target.value)}
                                 />
                                 <InputError className="mt-2" message={createPipeline.errors.type} />
                             </div>
                             <div className="flex items-end">
-                                <PrimaryButton disabled={createPipeline.processing}>Crear</PrimaryButton>
+                                <PrimaryButton disabled={createPipeline.processing} className="w-full justify-center flex items-center gap-2">
+                                    <PlusIcon className="w-5 h-5" />
+                                    Crear Pipeline
+                                </PrimaryButton>
                             </div>
                         </form>
-                    </div>
+                    </Card>
 
                     <div className="space-y-6">
                         {(pipelines ?? []).map((pipeline) => (

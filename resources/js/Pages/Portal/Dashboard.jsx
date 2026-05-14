@@ -1,52 +1,61 @@
 import PortalLayout from '@/Layouts/Portal/PortalLayout';
 import { Head, Link } from '@inertiajs/react';
+import Card from '@/Components/Card';
+import PrimaryButton from '@/Components/PrimaryButton';
+import { AcademicCapIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 export default function Dashboard({ student, enrollments }) {
     return (
-        <PortalLayout
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Mis Cursos</h2>}
-        >
+        <PortalLayout header="Mis Cursos">
             <Head title="Mis Cursos" />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    
-                    {enrollments.length === 0 ? (
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 text-gray-900">
-                            No estás matriculado en ningún curso actualmente.
+            <div className="space-y-6">
+                {enrollments.length === 0 ? (
+                    <Card>
+                        <div className="flex flex-col items-center justify-center py-12">
+                            <AcademicCapIcon className="h-12 w-12 text-surface-400 mb-4" />
+                            <p className="text-surface-600 text-lg font-medium">No estás matriculado en ningún curso actualmente.</p>
                         </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {enrollments.map((enrollment) => (
-                                <div key={enrollment.id} className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                                    <div className="p-6">
-                                        <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    </Card>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {enrollments.map((enrollment) => (
+                            <Card key={enrollment.id} className="flex flex-col h-full hover:shadow-md transition-shadow">
+                                <div className="flex-grow">
+                                    <div className="flex items-center space-x-3 mb-4">
+                                        <div className="bg-primary-100 p-2 rounded-lg">
+                                            <AcademicCapIcon className="h-6 w-6 text-primary-600" />
+                                        </div>
+                                        <h3 className="text-lg font-bold text-surface-900 leading-tight">
                                             {enrollment.course.fullname}
                                         </h3>
-                                        <p className="text-sm text-gray-500 mb-4">
-                                            Matriculado el: {new Date(enrollment.enrolled_at).toLocaleDateString()}
-                                        </p>
-                                        
-                                        <div className="mt-4">
-                                            {student.is_suspended ? (
-                                                <div className="text-center p-3 bg-red-50 text-red-700 text-sm rounded-md font-medium border border-red-200">
-                                                    Acceso bloqueado por Mora. Por favor, regularice sus pagos.
-                                                </div>
-                                            ) : (
-                                                <a 
-                                                    href={route('portal.moodle.login', enrollment.course.id)}
-                                                    className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150 w-full justify-center"
-                                                >
-                                                    Ir al Aula Virtual
-                                                </a>
-                                            )}
-                                        </div>
+                                    </div>
+                                    <div className="text-sm text-surface-500 mb-6 flex flex-col space-y-1">
+                                        <span>Matriculado el: {new Date(enrollment.enrolled_at).toLocaleDateString()}</span>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                                
+                                <div className="mt-auto pt-4 border-t border-surface-100">
+                                    {student.is_suspended ? (
+                                        <div className="flex items-center space-x-2 p-3 bg-red-50 text-red-700 text-sm rounded-lg font-medium border border-red-100">
+                                            <ExclamationTriangleIcon className="h-5 w-5 flex-shrink-0" />
+                                            <span>Acceso bloqueado por Mora. Por favor, regularice sus pagos.</span>
+                                        </div>
+                                    ) : (
+                                        <a 
+                                            href={route('portal.moodle.login', enrollment.course.id)}
+                                            className="w-full"
+                                        >
+                                            <PrimaryButton className="w-full justify-center">
+                                                Ir al Aula Virtual
+                                            </PrimaryButton>
+                                        </a>
+                                    )}
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                )}
             </div>
         </PortalLayout>
     );
