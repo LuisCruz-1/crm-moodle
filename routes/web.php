@@ -114,7 +114,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/plantillas', [\App\Http\Controllers\Comms\EmailTemplateController::class, 'index'])->name('templates.index');
         Route::get('/plantillas/{template}/editar', [\App\Http\Controllers\Comms\EmailTemplateController::class, 'edit'])->name('templates.edit');
         Route::put('/plantillas/{template}', [\App\Http\Controllers\Comms\EmailTemplateController::class, 'update'])->name('templates.update');
-        Route::get('/logs', [BackofficeController::class, 'commsLogs'])->name('logs.index');
+        Route::get('/logs', [\App\Http\Controllers\Comms\LogController::class, 'index'])->name('logs.index');
     });
 
     Route::prefix('configuracion')->name('settings.')->group(function () {

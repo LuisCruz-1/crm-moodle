@@ -49,7 +49,35 @@ class SendTransactionalEmailJob implements ShouldQueue
         $subject = $this->replaceVariables($template->subject, $this->data);
         $body = $this->replaceVariables($template->body, $this->data);
 
-        Mail::to($this->toEmail)->send(new DynamicTemplateMail($subject, $body));
+        $logId = \Illuminate\Support\Facades\DB::table('notification_logs')->insertGetId([
+            'channel' => 'email',
+            'to' => $this->toEmail,
+            'template_key' => $this->templateKey,
+            'status' => 'queued',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        try {
+            Mail::to($this->toEmail)->send(new DynamicTemplateMail($subject, $body));
+            
+            \Illuminate\Support\Facades\DB::table('notification_logs')
+                ->where('id', $logId)
+                ->update([
+                    'status' => 'sent',
+                    'sent_at' => now(),
+                    'updated_at' => now(),
+                ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\DB::table('notification_logs')
+                ->where('id', $logId)
+                ->update([
+                    'status' => 'failed',
+                    'error' => $e->getMessage(),
+                    'updated_at' => now(),
+                ]);
+            throw $e;
+        }
     }
 
     /**
