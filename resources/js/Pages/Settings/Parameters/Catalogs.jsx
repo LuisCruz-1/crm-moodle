@@ -7,11 +7,11 @@ import CurrenciesTable from './Partials/CurrenciesTable';
 import PaymentMethodsTable from './Partials/PaymentMethodsTable';
 import PaymentTypesTable from './Partials/PaymentTypesTable';
 
-export default function Index({ currencies, paymentMethods, paymentTypes, branding }) {
-    const [activeTab, setActiveTab] = useState('branding');
+export default function Catalogs({ currencies, paymentMethods, paymentTypes }) {
+    const [activeTab, setActiveTab] = useState('currencies');
 
     return (
-        <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Catálogos & Identidad</h2>}>
+        <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Catálogos</h2>}>
             <Head title="Configuración - Catálogos" />
 
             <div className="py-12">
@@ -21,12 +21,6 @@ export default function Index({ currencies, paymentMethods, paymentTypes, brandi
                         
                         <div className="mb-8 border-b border-gray-200">
                             <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-                                <button
-                                    onClick={() => setActiveTab('branding')}
-                                    className={`${activeTab === 'branding' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium`}
-                                >
-                                    Identidad Visual
-                                </button>
                                 <button
                                     onClick={() => setActiveTab('currencies')}
                                     className={`${activeTab === 'currencies' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium`}
@@ -49,7 +43,6 @@ export default function Index({ currencies, paymentMethods, paymentTypes, brandi
                         </div>
 
                         <div className="mt-6">
-                            {activeTab === 'branding' && <BrandingForm branding={branding} />}
                             {activeTab === 'currencies' && <CurrenciesTable currencies={currencies} />}
                             {activeTab === 'payment_methods' && <PaymentMethodsTable paymentMethods={paymentMethods} />}
                             {activeTab === 'payment_types' && <PaymentTypesTable paymentTypes={paymentTypes} />}

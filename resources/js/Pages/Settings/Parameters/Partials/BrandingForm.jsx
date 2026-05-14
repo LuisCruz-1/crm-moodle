@@ -14,7 +14,7 @@ export default function BrandingForm({ branding }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('settings.parameters.branding'), {
+        post(route('settings.identity.branding'), {
             preserveScroll: true,
         });
     };

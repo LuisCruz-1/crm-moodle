@@ -6,6 +6,13 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        @php
+            $appFavicon = \App\Models\Setting::where('key', 'app_favicon')->value('value');
+        @endphp
+        @if($appFavicon)
+            <link rel="icon" href="{{ $appFavicon }}">
+        @endif
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />

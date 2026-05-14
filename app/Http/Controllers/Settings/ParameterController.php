@@ -13,17 +13,23 @@ use Illuminate\Support\Facades\Storage;
 
 class ParameterController extends Controller
 {
-    public function index()
+    public function identity()
     {
-        return Inertia::render('Settings/Parameters/Index', [
-            'currencies' => Currency::all(),
-            'paymentMethods' => PaymentMethod::all(),
-            'paymentTypes' => PaymentType::all(),
+        return Inertia::render('Settings/Parameters/Identity', [
             'branding' => [
                 'app_name' => Setting::where('key', 'app_name')->value('value') ?? config('app.name'),
                 'app_logo' => Setting::where('key', 'app_logo')->value('value'),
                 'app_favicon' => Setting::where('key', 'app_favicon')->value('value'),
             ]
+        ]);
+    }
+
+    public function catalogs()
+    {
+        return Inertia::render('Settings/Parameters/Catalogs', [
+            'currencies' => Currency::all(),
+            'paymentMethods' => PaymentMethod::all(),
+            'paymentTypes' => PaymentType::all(),
         ]);
     }
 

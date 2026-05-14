@@ -26,11 +26,13 @@ use App\Http\Controllers\Finance\PaymentController;
 use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    if (auth()->guard('student')->check()) {
+        return redirect()->route('portal.dashboard');
+    }
+    if (auth()->guard('web')->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -119,20 +121,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/moodle', [SettingsMoodleController::class, 'index'])->name('moodle.index');
         Route::put('/moodle', [SettingsMoodleController::class, 'update'])->name('moodle.update');
         
-        Route::get('/parametros', [\App\Http\Controllers\Settings\ParameterController::class, 'index'])->name('parameters.index');
-        Route::post('/parametros/branding', [\App\Http\Controllers\Settings\ParameterController::class, 'updateBranding'])->name('parameters.branding');
+        Route::get('/identidad', [\App\Http\Controllers\Settings\ParameterController::class, 'identity'])->name('identity.index');
+        Route::post('/identidad/branding', [\App\Http\Controllers\Settings\ParameterController::class, 'updateBranding'])->name('identity.branding');
         
-        Route::post('/parametros/monedas', [\App\Http\Controllers\Settings\ParameterController::class, 'storeCurrency'])->name('parameters.currencies.store');
-        Route::put('/parametros/monedas/{currency}', [\App\Http\Controllers\Settings\ParameterController::class, 'updateCurrency'])->name('parameters.currencies.update');
-        Route::delete('/parametros/monedas/{currency}', [\App\Http\Controllers\Settings\ParameterController::class, 'destroyCurrency'])->name('parameters.currencies.destroy');
+        Route::get('/catalogos', [\App\Http\Controllers\Settings\ParameterController::class, 'catalogs'])->name('catalogs.index');
+        
+        Route::post('/catalogos/monedas', [\App\Http\Controllers\Settings\ParameterController::class, 'storeCurrency'])->name('parameters.currencies.store');
+        Route::put('/catalogos/monedas/{currency}', [\App\Http\Controllers\Settings\ParameterController::class, 'updateCurrency'])->name('parameters.currencies.update');
+        Route::delete('/catalogos/monedas/{currency}', [\App\Http\Controllers\Settings\ParameterController::class, 'destroyCurrency'])->name('parameters.currencies.destroy');
 
-        Route::post('/parametros/metodos-pago', [\App\Http\Controllers\Settings\ParameterController::class, 'storePaymentMethod'])->name('parameters.payment_methods.store');
-        Route::put('/parametros/metodos-pago/{paymentMethod}', [\App\Http\Controllers\Settings\ParameterController::class, 'updatePaymentMethod'])->name('parameters.payment_methods.update');
-        Route::delete('/parametros/metodos-pago/{paymentMethod}', [\App\Http\Controllers\Settings\ParameterController::class, 'destroyPaymentMethod'])->name('parameters.payment_methods.destroy');
+        Route::post('/catalogos/metodos-pago', [\App\Http\Controllers\Settings\ParameterController::class, 'storePaymentMethod'])->name('parameters.payment_methods.store');
+        Route::put('/catalogos/metodos-pago/{paymentMethod}', [\App\Http\Controllers\Settings\ParameterController::class, 'updatePaymentMethod'])->name('parameters.payment_methods.update');
+        Route::delete('/catalogos/metodos-pago/{paymentMethod}', [\App\Http\Controllers\Settings\ParameterController::class, 'destroyPaymentMethod'])->name('parameters.payment_methods.destroy');
 
-        Route::post('/parametros/tipos-pago', [\App\Http\Controllers\Settings\ParameterController::class, 'storePaymentType'])->name('parameters.payment_types.store');
-        Route::put('/parametros/tipos-pago/{paymentType}', [\App\Http\Controllers\Settings\ParameterController::class, 'updatePaymentType'])->name('parameters.payment_types.update');
-        Route::delete('/parametros/tipos-pago/{paymentType}', [\App\Http\Controllers\Settings\ParameterController::class, 'destroyPaymentType'])->name('parameters.payment_types.destroy');
+        Route::post('/catalogos/tipos-pago', [\App\Http\Controllers\Settings\ParameterController::class, 'storePaymentType'])->name('parameters.payment_types.store');
+        Route::put('/catalogos/tipos-pago/{paymentType}', [\App\Http\Controllers\Settings\ParameterController::class, 'updatePaymentType'])->name('parameters.payment_types.update');
+        Route::delete('/catalogos/tipos-pago/{paymentType}', [\App\Http\Controllers\Settings\ParameterController::class, 'destroyPaymentType'])->name('parameters.payment_types.destroy');
         
         Route::get('/usuarios', [BackofficeController::class, 'adminUsers'])->name('users.index');
         Route::post('/usuarios', [BackofficeController::class, 'storeUser'])->name('users.store');
